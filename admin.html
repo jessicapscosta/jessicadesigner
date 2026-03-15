@@ -320,6 +320,50 @@ button{font-family:inherit;cursor:pointer}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-txt{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--mu)}
 
+/* ─── FONT SIZE CONTROL ─── */
+.font-size-row{display:flex;align-items:center;gap:10px;margin-top:6px}
+.fs-label{font-size:12px;color:var(--mu);min-width:80px}
+.fs-slider{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;
+  background:var(--bd);outline:none;flex:1;cursor:pointer}
+.fs-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;
+  border-radius:50%;background:var(--pk);cursor:pointer;border:2px solid var(--bg2)}
+.fs-slider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;
+  background:var(--pk);cursor:pointer;border:2px solid var(--bg2)}
+.fs-value{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;
+  color:var(--pk);min-width:42px;text-align:right}
+
+/* ─── BLOCK ORDER ─── */
+.blocks-order{display:flex;flex-direction:column;gap:8px}
+.block-order-item{
+  display:flex;align-items:center;gap:12px;padding:12px 16px;
+  background:var(--bg3);border:1px solid var(--bd);border-radius:10px;
+  cursor:grab;transition:all .18s;user-select:none;
+}
+.block-order-item:hover{border-color:var(--pk);background:rgba(255,26,108,.05)}
+.block-order-item.dragging{opacity:.5;border-color:var(--pk)}
+.block-order-item.drag-over{border-color:var(--pv);border-style:dashed}
+.boi-handle{display:flex;flex-direction:column;gap:3px;opacity:.4;flex-shrink:0}
+.boi-handle span{width:16px;height:2px;background:var(--off);border-radius:1px;display:block}
+.boi-icon{width:24px;height:24px;border-radius:6px;background:rgba(255,26,108,.12);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.boi-icon svg{width:12px;height:12px;color:var(--pk)}
+.boi-label{font-size:13px;font-weight:600;flex:1}
+.boi-toggle{margin-left:auto;flex-shrink:0}
+
+/* ─── PROJETOS GALERIA ─── */
+.proj-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:10px}
+.proj-gallery-item{aspect-ratio:1;border-radius:8px;overflow:hidden;position:relative;
+  background:var(--sf);border:1.5px solid var(--bd)}
+.proj-gallery-item img{width:100%;height:100%;object-fit:cover}
+.proj-gallery-del{position:absolute;top:4px;right:4px;width:20px;height:20px;
+  border-radius:50%;background:rgba(231,76,60,.85);border:none;
+  color:#fff;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.proj-gallery-add{aspect-ratio:1;border-radius:8px;border:2px dashed var(--bd);
+  background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;cursor:pointer;transition:all .18s;color:var(--mu);font-size:11px;font-weight:600}
+.proj-gallery-add:hover{border-color:var(--pk);color:var(--pk)}
+.proj-gallery-add svg{width:18px;height:18px}
+
 /* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar{width:5px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -403,6 +447,9 @@ button{font-family:inherit;cursor:pointer}
       </button></li>
       <li class="sb-item"><button class="sb-link" data-sec="briefing" onclick="showSection('briefing')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Briefing
+      </button></li>
+      <li class="sb-item" style="margin-top:8px"><button class="sb-link" data-sec="config" onclick="showSection('config')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M2 12h2M20 12h2M19.07 19.07l-1.41-1.41M4.93 19.07l1.41-1.41"/></svg>Config & Blocos
       </button></li>
     </ul>
     <div class="sb-bottom">
@@ -511,10 +558,97 @@ button{font-family:inherit;cursor:pointer}
 
         <div class="panel-card">
           <div class="panel-card-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            Stats abaixo do Hero (3 números)
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,7 4,4 20,4 20,7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+            Tamanhos de Fonte — Hero
           </div>
-          <div id="hero-stats-wrap"></div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <div class="field-label" style="margin-bottom:8px">Título principal (h1)</div>
+              <div class="font-size-row">
+                <span class="fs-label">Mobile</span>
+                <input type="range" class="fs-slider" id="fs-hero-h1-mob" min="28" max="72" value="52" oninput="document.getElementById('fsv-hero-h1-mob').textContent=this.value+'px'">
+                <span class="fs-value" id="fsv-hero-h1-mob">52px</span>
+              </div>
+              <div class="font-size-row" style="margin-top:6px">
+                <span class="fs-label">Desktop</span>
+                <input type="range" class="fs-slider" id="fs-hero-h1-desk" min="48" max="120" value="92" oninput="document.getElementById('fsv-hero-h1-desk').textContent=this.value+'px'">
+                <span class="fs-value" id="fsv-hero-h1-desk">92px</span>
+              </div>
+            </div>
+            <div>
+              <div class="field-label" style="margin-bottom:8px">Subtítulo / descrição</div>
+              <div class="font-size-row">
+                <span class="fs-label">Tamanho</span>
+                <input type="range" class="fs-slider" id="fs-hero-sub" min="13" max="28" value="18" oninput="document.getElementById('fsv-hero-sub').textContent=this.value+'px'">
+                <span class="fs-value" id="fsv-hero-sub">18px</span>
+              </div>
+            </div>
+            <div>
+              <div class="field-label" style="margin-bottom:8px">Botões</div>
+              <div class="font-size-row">
+                <span class="fs-label">Tamanho</span>
+                <input type="range" class="fs-slider" id="fs-hero-btn" min="11" max="20" value="15" oninput="document.getElementById('fsv-hero-btn').textContent=this.value+'px'">
+                <span class="fs-value" id="fsv-hero-btn">15px</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+            Imagens do Hero
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="field-label">Imagem de fundo (pulsa com o glow)</label>
+              <div class="upload-area" id="ua-hero-bg">
+                <input type="file" id="f-hero-bg" accept="image/*" onchange="handleUpload('hero-bg',this)">
+                <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+                <div class="upload-txt">Imagem de fundo</div>
+                <div class="upload-sub">Qualquer formato — fica atrás e pulsa</div>
+                <div class="upload-preview" id="uprev-hero-bg"><img id="uprevimg-hero-bg" src="" alt=""></div>
+                <div class="upload-status" id="ust-hero-bg"></div>
+              </div>
+              <input class="field-input" id="hero-bg-url" type="text" placeholder="Ou cole a URL" style="margin-top:8px">
+            </div>
+            <div class="form-field">
+              <label class="field-label">Foto principal PNG (sem fundo, fica na frente)</label>
+              <div class="upload-area" id="ua-hero-main">
+                <input type="file" id="f-hero-main" accept="image/png,image/webp" onchange="handleUpload('hero-main',this)">
+                <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+                <div class="upload-txt">PNG sem fundo</div>
+                <div class="upload-sub">PNG ou WEBP com transparência</div>
+                <div class="upload-preview" id="uprev-hero-main"><img id="uprevimg-hero-main" src="" alt=""></div>
+                <div class="upload-status" id="ust-hero-main"></div>
+              </div>
+              <input class="field-input" id="hero-main-url" type="text" placeholder="Ou cole a URL" style="margin-top:8px">
+            </div>
+            <div class="form-field">
+              <label class="field-label">Imagem flutuante A (canto inferior esquerdo)</label>
+              <div class="upload-area" id="ua-hero-fa">
+                <input type="file" id="f-hero-fa" accept="image/*" onchange="handleUpload('hero-fa',this)">
+                <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+                <div class="upload-txt">Float A — inferior esq.</div>
+                <div class="upload-sub">110×110px recomendado</div>
+                <div class="upload-preview" id="uprev-hero-fa"><img id="uprevimg-hero-fa" src="" alt=""></div>
+                <div class="upload-status" id="ust-hero-fa"></div>
+              </div>
+              <input class="field-input" id="hero-fa-url" type="text" placeholder="URL" style="margin-top:8px">
+            </div>
+            <div class="form-field">
+              <label class="field-label">Imagem flutuante B (canto superior direito)</label>
+              <div class="upload-area" id="ua-hero-fb">
+                <input type="file" id="f-hero-fb" accept="image/*" onchange="handleUpload('hero-fb',this)">
+                <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+                <div class="upload-txt">Float B — superior dir.</div>
+                <div class="upload-sub">90×90px recomendado</div>
+                <div class="upload-preview" id="uprev-hero-fb"><img id="uprevimg-hero-fb" src="" alt=""></div>
+                <div class="upload-status" id="ust-hero-fb"></div>
+              </div>
+              <input class="field-input" id="hero-fb-url" type="text" placeholder="URL" style="margin-top:8px">
+            </div>
+          </div>
         </div>
 
         <div class="img-history">
@@ -585,7 +719,7 @@ button{font-family:inherit;cursor:pointer}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             Projetos do Portfólio
           </div>
-          <p style="font-size:12px;color:var(--mu);margin-bottom:16px">A capa pode ser URL do Behance CDN ou upload via Cloudinary.</p>
+          <p style="font-size:12px;color:var(--mu);margin-bottom:16px">Cada projeto tem capa (thumbnail) + galeria de imagens internas (página do projeto).</p>
           <div class="rep-list" id="projetos-list"></div>
           <button class="rep-add-btn" onclick="addItem('projetos-list',projetoTpl)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -616,6 +750,28 @@ button{font-family:inherit;cursor:pointer}
               <textarea class="field-input field-textarea" id="vals-desc" style="min-height:70px"></textarea></div>
           </div>
         </div>
+
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+            Imagem Central (ao lado dos valores)
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="field-label">Foto (aparece entre a lista e os stats)</label>
+              <div class="upload-area" id="ua-valores">
+                <input type="file" id="f-valores" accept="image/*" onchange="handleUpload('valores',this)">
+                <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+                <div class="upload-txt">Foto — seção valores</div>
+                <div class="upload-sub">Recomendado: 400×600px</div>
+                <div class="upload-preview" id="uprev-valores"><img id="uprevimg-valores" src="" alt=""></div>
+                <div class="upload-status" id="ust-valores"></div>
+              </div>
+              <input class="field-input" id="valores-img-url" type="text" placeholder="Ou cole a URL" style="margin-top:8px">
+            </div>
+          </div>
+        </div>
+
         <div class="panel-card">
           <div class="panel-card-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,11 12,14 22,4"/></svg>
@@ -775,6 +931,101 @@ button{font-family:inherit;cursor:pointer}
       </div>
 
     </div><!-- /content -->
+
+      <!-- ══ CONFIG & BLOCOS ══ -->
+      <div id="sec-config" class="section-panel" style="padding:32px">
+        <!-- Favicon -->
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h4"/></svg>
+            Favicon do Site
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="field-label">Ícone da aba (favicon)</label>
+              <div class="upload-area" id="ua-favicon">
+                <input type="file" id="f-favicon" accept="image/png,image/x-icon,image/svg+xml,image/webp" onchange="handleUpload('favicon',this)">
+                <div class="upload-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h4"/></svg>
+                </div>
+                <div class="upload-txt">Favicon</div>
+                <div class="upload-sub">PNG 32×32 ou 64×64, ICO ou SVG</div>
+                <div class="upload-preview" id="uprev-favicon" style="max-height:80px"><img id="uprevimg-favicon" src="" alt="" style="height:64px;width:64px;object-fit:contain;margin:0 auto"></div>
+                <div class="upload-status" id="ust-favicon"></div>
+              </div>
+              <input class="field-input" id="favicon-url" type="text" placeholder="Ou cole a URL do ícone" style="margin-top:8px">
+              <p style="font-size:11px;color:var(--mu);margin-top:6px">Dica: use a mesma imagem da logo (gem rosa quadrada) em PNG 64×64</p>
+            </div>
+            <div class="form-field">
+              <label class="field-label">Título da aba (title)</label>
+              <input class="field-input" id="site-title" type="text" placeholder="Jéssica Pereira — Designer Gráfico">
+              <label class="field-label" style="margin-top:14px">Meta description (SEO)</label>
+              <textarea class="field-input field-textarea" id="site-meta-desc" style="min-height:70px" placeholder="Designer gráfica baseada em Brasília..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tamanho de fonte global -->
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,7 4,4 20,4 20,7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+            Tamanhos de Fonte Globais
+          </div>
+          <p style="font-size:12px;color:var(--mu);margin-bottom:18px">Controla os tamanhos base de todas as seções. As seções individuais sobrescrevem esses valores.</p>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div>
+              <div class="field-label" style="margin-bottom:8px">Títulos de seção (h2)</div>
+              <div class="font-size-row">
+                <span class="fs-label">Desktop</span>
+                <input type="range" class="fs-slider" id="fs-global-h2" min="28" max="72" value="58" oninput="fsgUpdate('global-h2',this.value)">
+                <span class="fs-value" id="fsv-global-h2">58px</span>
+              </div>
+            </div>
+            <div>
+              <div class="field-label" style="margin-bottom:8px">Corpo do texto (p)</div>
+              <div class="font-size-row">
+                <span class="fs-label">Tamanho</span>
+                <input type="range" class="fs-slider" id="fs-global-p" min="12" max="22" value="16" oninput="fsgUpdate('global-p',this.value)">
+                <span class="fs-value" id="fsv-global-p">16px</span>
+              </div>
+            </div>
+            <div>
+              <div class="field-label" style="margin-bottom:8px">Botões</div>
+              <div class="font-size-row">
+                <span class="fs-label">Tamanho</span>
+                <input type="range" class="fs-slider" id="fs-global-btn" min="11" max="20" value="15" oninput="fsgUpdate('global-btn',this.value)">
+                <span class="fs-value" id="fsv-global-btn">15px</span>
+              </div>
+            </div>
+            <div>
+              <div class="field-label" style="margin-bottom:8px">Tags / labels pequenos</div>
+              <div class="font-size-row">
+                <span class="fs-label">Tamanho</span>
+                <input type="range" class="fs-slider" id="fs-global-sm" min="10" max="16" value="12" oninput="fsgUpdate('global-sm',this.value)">
+                <span class="fs-value" id="fsv-global-sm">12px</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ordem das seções -->
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Ordem das Seções (arrastar para reordenar)
+          </div>
+          <p style="font-size:12px;color:var(--mu);margin-bottom:16px">Arraste os blocos para reordenar. O toggle oculta/mostra a seção no site. Clique em <strong>Salvar ordem</strong> para aplicar.</p>
+          <div class="blocks-order" id="blocks-order-list"></div>
+          <div style="display:flex;gap:10px;margin-top:14px">
+            <button class="btn-save" style="flex:1" onclick="saveBlocksOrder()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13"/></svg>
+              Salvar ordem
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content, fechamento real -->
   </main>
 </div><!-- /app -->
 
@@ -789,16 +1040,16 @@ import { getFirestore, doc, getDoc, setDoc }
    🔧 CONFIGURAÇÃO — preencha com suas credenciais
 ══════════════════════════════════════════ */
 const FB = {
-  apiKey:            "AIzaSyAfmhpr6ap9wQWYct-Uw6Nha2Tx8txfPKA",
-  authDomain:        "jessica-designer-39d25.firebaseapp.com",
-  projectId:         "jessica-designer-39d25",
-  storageBucket:     "jessica-designer-39d25.firebasestorage.app",
-  messagingSenderId: "640831182056",
-  appId:             "1:640831182056:web:2f60236bd8568ba54e255d"
+  apiKey:            "SUA_API_KEY",
+  authDomain:        "SEU_PROJETO.firebaseapp.com",
+  projectId:         "SEU_PROJETO_ID",
+  storageBucket:     "SEU_PROJETO.appspot.com",
+  messagingSenderId: "SEU_SENDER_ID",
+  appId:             "SEU_APP_ID"
 };
 const CLOUD = {
-  cloudName:    "dgqxadsmt",
-  uploadPreset: "jessica-designer"   // unsigned preset
+  cloudName:    "SEU_CLOUD_NAME",
+  uploadPreset: "SEU_UPLOAD_PRESET"   // unsigned preset
 };
 /* ══════════════════════════════════════════ */
 
@@ -855,16 +1106,17 @@ document.getElementById('li-pass').addEventListener('keydown',  e => { if(e.key=
 
 /* ─── SECTIONS META ─── */
 const SMETA = {
-  hero:        { title:'Hero',           sub:'Textos, imagens e stats do hero' },
-  sobre:       { title:'Sobre',          sub:'Bio, valores e skills da seção sobre' },
-  servicos:    { title:'Serviços',       sub:'Cards de serviços oferecidos' },
-  projetos:    { title:'Projetos',       sub:'Portfólio — cards de projetos' },
-  valores:     { title:'Valores & Stats',sub:'Itens de valor e números em destaque' },
-  depoimentos: { title:'Depoimentos',    sub:'Avaliações de clientes' },
-  faq:         { title:'FAQ',            sub:'Perguntas e respostas frequentes' },
-  clientes:    { title:'Clientes',       sub:'Marcas na faixa animada' },
-  footer:      { title:'Footer',         sub:'Rodapé — links, bio e colunas' },
-  briefing:    { title:'Briefing',       sub:'Formulário de briefing — categorias e opções' }
+  hero:        { title:'Hero',            sub:'Textos, imagens e stats do hero' },
+  sobre:       { title:'Sobre',           sub:'Bio, foto, tags e skills da seção sobre' },
+  servicos:    { title:'Serviços',        sub:'Cards de serviços oferecidos' },
+  projetos:    { title:'Projetos',        sub:'Portfólio — capa + galeria de imagens' },
+  valores:     { title:'Valores & Stats', sub:'Itens de valor, imagem e números em destaque' },
+  depoimentos: { title:'Depoimentos',     sub:'Avaliações de clientes' },
+  faq:         { title:'FAQ',             sub:'Perguntas e respostas frequentes' },
+  clientes:    { title:'Clientes',        sub:'Marcas na faixa animada' },
+  footer:      { title:'Footer',          sub:'Rodapé — links, bio e colunas' },
+  briefing:    { title:'Briefing',        sub:'Formulário de briefing — categorias e opções' },
+  config:      { title:'Config & Blocos', sub:'Favicon, tamanhos de fonte e ordem das seções' }
 };
 
 window._sec = 'hero';
@@ -919,6 +1171,7 @@ window.saveSection = async () => {
 function initAdmin(){
   buildHeroStats();
   buildSmallStats();
+  buildBlocksOrder();
   loadSection();
   renderHist('hero');
   renderHist('projetos');
@@ -934,18 +1187,29 @@ function fillSection(sec, d){
     sv('hero-desc',d.desc); sv('hero-btn1-txt',d.btn1_txt); sv('hero-btn1-link',d.btn1_link);
     sv('hero-btn2-txt',d.btn2_txt); sv('hero-btn2-link',d.btn2_link);
     sv('hero-img-url',d.img_url); sv('hero-chip1',d.chip1); sv('hero-chip2',d.chip2);
-    if(d.img_url) previewUrl('hero', d.img_url);
+    sv('hero-bg-url',d.bg_url); sv('hero-main-url',d.main_url);
+    sv('hero-fa-url',d.fa_url); sv('hero-fb-url',d.fb_url);
+    if(d.bg_url)   previewUrl('hero-bg', d.bg_url);
+    if(d.main_url) previewUrl('hero-main', d.main_url);
+    if(d.fa_url)   previewUrl('hero-fa', d.fa_url);
+    if(d.fb_url)   previewUrl('hero-fb', d.fb_url);
     fillHeroStats(d.stats||[]);
+    if(d.fs){ Object.entries(d.fs).forEach(([k,v])=>{ sv('fs-'+k,v); fsgUpdate(k,v,true); }); }
   }
   if(sec==='sobre'){
     sv('sobre-tag',d.tag); sv('sobre-titulo',d.titulo); sv('sobre-desc',d.desc); sv('sobre-badge',d.badge);
+    sv('sobre-img-url',d.img_url); sv('sobre-tag1',d.atag1); sv('sobre-tag2',d.atag2); sv('sobre-tag3',d.atag3);
+    if(d.img_url){ const p=document.getElementById('uprev-sobre'); const pi=document.getElementById('uprevimg-sobre'); if(p&&pi){p.style.display='block';pi.src=d.img_url;} }
     buildRepList('sobre-vals', d.vals||[], sobreValTpl);
     buildChips('skills-chips', d.skills||[]);
+    if(d.fs){ Object.entries(d.fs).forEach(([k,v])=>{ sv('fs-'+k,v); fsgUpdate(k,v,true); }); }
   }
   if(sec==='servicos') buildRepList('servicos-list', d.items||[], servicoTpl);
   if(sec==='projetos') buildRepList('projetos-list', d.items||[], projetoTpl);
   if(sec==='valores'){
     sv('vals-tag',d.tag); sv('vals-l1',d.l1); sv('vals-l2',d.l2); sv('vals-desc',d.desc);
+    sv('valores-img-url',d.img_url);
+    if(d.img_url){ const p=document.getElementById('uprev-valores'); const pi=document.getElementById('uprevimg-valores'); if(p&&pi){p.style.display='block';pi.src=d.img_url;} }
     buildRepList('vals-items', d.items||[], valItemTpl);
     sv('stat-big-n',d.stat_big_n); sv('stat-big-l',d.stat_big_l);
     fillSmallStats(d.small_stats||[]);
@@ -964,6 +1228,12 @@ function fillSection(sec, d){
     buildChips('bf-prazo-chips', d.prazo_opts||[]);
     buildChips('bf-orc-chips',   d.orcamento_opts||[]);
   }
+  if(sec==='config'){
+    sv('favicon-url',d.favicon_url); sv('site-title',d.site_title); sv('site-meta-desc',d.meta_desc);
+    if(d.favicon_url){ const p=document.getElementById('uprev-favicon'); const pi=document.getElementById('uprevimg-favicon'); if(p&&pi){p.style.display='block';pi.src=d.favicon_url;} }
+    if(d.fs){ Object.entries(d.fs).forEach(([k,v])=>{ const el=document.getElementById('fs-'+k); if(el){el.value=v; fsgUpdate(k,v,true);} }); }
+    if(d.blocks_order) applyBlocksOrder(d.blocks_order);
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -974,18 +1244,25 @@ function collectSection(sec){
     badge:gv('hero-badge'), l1:gv('hero-l1'), l2:gv('hero-l2'), l3:gv('hero-l3'),
     desc:gv('hero-desc'), btn1_txt:gv('hero-btn1-txt'), btn1_link:gv('hero-btn1-link'),
     btn2_txt:gv('hero-btn2-txt'), btn2_link:gv('hero-btn2-link'),
-    img_url:gv('hero-img-url'), chip1:gv('hero-chip1'), chip2:gv('hero-chip2'),
-    stats: collectHeroStats()
+    img_url:gv('hero-img-url'), bg_url:gv('hero-bg-url'), main_url:gv('hero-main-url'),
+    fa_url:gv('hero-fa-url'), fb_url:gv('hero-fb-url'),
+    chip1:gv('hero-chip1'), chip2:gv('hero-chip2'),
+    stats: collectHeroStats(),
+    fs:{ 'hero-h1-mob':gv('fs-hero-h1-mob')||'52', 'hero-h1-desk':gv('fs-hero-h1-desk')||'92',
+         'hero-sub':gv('fs-hero-sub')||'18', 'hero-btn':gv('fs-hero-btn')||'15' }
   };
   if(sec==='sobre') return {
     tag:gv('sobre-tag'), titulo:gv('sobre-titulo'), desc:gv('sobre-desc'), badge:gv('sobre-badge'),
+    img_url:gv('sobre-img-url'), atag1:gv('sobre-tag1'), atag2:gv('sobre-tag2'), atag3:gv('sobre-tag3'),
     vals:  collectRep('sobre-vals',  ['label','sub']),
-    skills:collectChipsList('skills-chips')
+    skills:collectChipsList('skills-chips'),
+    fs:{ 'sobre-titulo':gv('fs-sobre-titulo')||'58', 'sobre-desc':gv('fs-sobre-desc')||'16' }
   };
   if(sec==='servicos') return { items: collectRep('servicos-list', ['titulo','txt']) };
-  if(sec==='projetos') return { items: collectRep('projetos-list', ['cat','nome','img_url','behance','desc']) };
+  if(sec==='projetos') return { items: collectRep('projetos-list', ['cat','nome','img_url','behance','desc','gallery']) };
   if(sec==='valores')  return {
     tag:gv('vals-tag'), l1:gv('vals-l1'), l2:gv('vals-l2'), desc:gv('vals-desc'),
+    img_url:gv('valores-img-url'),
     items: collectRep('vals-items', ['num','label','sub']),
     stat_big_n:gv('stat-big-n'), stat_big_l:gv('stat-big-l'),
     small_stats: collectSmallStats()
@@ -1003,6 +1280,16 @@ function collectSection(sec){
     cats:         collectRep('bf-cats', ['label','sub']),
     prazo_opts:   collectChipsList('bf-prazo-chips'),
     orcamento_opts: collectChipsList('bf-orc-chips')
+  };
+  if(sec==='config') return {
+    favicon_url:gv('favicon-url'), site_title:gv('site-title'), meta_desc:gv('site-meta-desc'),
+    fs:{
+      'global-h2': document.getElementById('fs-global-h2')?.value||'58',
+      'global-p':  document.getElementById('fs-global-p')?.value||'16',
+      'global-btn':document.getElementById('fs-global-btn')?.value||'15',
+      'global-sm': document.getElementById('fs-global-sm')?.value||'12'
+    },
+    blocks_order: collectBlocksOrder()
   };
   return {};
 }
@@ -1062,12 +1349,19 @@ function servicoTpl(it){
 window.servicoTpl = servicoTpl;
 
 function projetoTpl(it, i){
+  const gallery = it.gallery ? (Array.isArray(it.gallery) ? it.gallery : it.gallery.split(',').map(s=>s.trim()).filter(Boolean)) : [];
+  const galleryHtml = gallery.map((url,gi)=>`
+    <div class="proj-gallery-item">
+      <img src="${esc(url)}" loading="lazy">
+      <button class="proj-gallery-del" onclick="removeGalleryImg(this)" title="Remover">×</button>
+    </div>
+  `).join('');
   return `<div class="form-grid" style="gap:10px">
     <div class="form-field"><label class="field-label">Categoria</label>
     <input class="field-input" name="cat" type="text" value="${esc(it.cat||'')}" placeholder="Identidade Visual · Branding"></div>
     <div class="form-field"><label class="field-label">Nome</label>
     <input class="field-input" name="nome" type="text" value="${esc(it.nome||'')}" placeholder="ID Visual | MOBE EDUC"></div>
-    <div class="form-field full"><label class="field-label">URL da capa</label>
+    <div class="form-field full"><label class="field-label">URL da capa (thumbnail)</label>
     <input class="field-input" name="img_url" type="text" value="${esc(it.img_url||'')}" placeholder="https://...">
     </div>
     <div class="form-field"><label class="field-label">Link Behance</label>
@@ -1086,9 +1380,57 @@ function projetoTpl(it, i){
       <input type="file" accept="image/*" style="display:none" onchange="uploadCapa(this,${i})">
     </label>
     <span id="capa-st-${i}" style="font-size:11px;color:var(--mu)"></span>
+  </div>
+  <div style="margin-top:14px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--mu);margin-bottom:8px">Galeria interna do projeto (imagens na página expandida)</div>
+    <div class="proj-gallery-grid" id="pgallery-${i}">
+      ${galleryHtml}
+      <button class="proj-gallery-add" onclick="addGalleryImg(${i})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+        Adicionar
+      </button>
+    </div>
+    <input type="hidden" name="gallery" value="${esc(gallery.join(','))}">
   </div>`;
 }
 window.projetoTpl = projetoTpl;
+
+window.addGalleryImg = async (projIdx) => {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*'; input.multiple = true;
+  input.onchange = async () => {
+    const grid = document.getElementById(`pgallery-${projIdx}`);
+    const addBtn = grid.querySelector('.proj-gallery-add');
+    for(const file of input.files){
+      const tmpEl = document.createElement('div');
+      tmpEl.className = 'proj-gallery-item';
+      tmpEl.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:var(--bg3);border-radius:8px"><div class="spin" style="width:20px;height:20px;border-width:2px"></div></div>`;
+      grid.insertBefore(tmpEl, addBtn);
+      try{
+        const url = await cloudinaryUpload(file);
+        tmpEl.innerHTML = `<img src="${url}" loading="lazy"><button class="proj-gallery-del" onclick="removeGalleryImg(this)" title="Remover">×</button>`;
+        addToHist(url);
+        /* atualiza hidden input */
+        updateGalleryHidden(projIdx, grid);
+      } catch(e){ tmpEl.remove(); toast('Erro no upload: '+e.message,'err'); }
+    }
+  };
+  input.click();
+};
+
+window.removeGalleryImg = (btn) => {
+  const item = btn.closest('.proj-gallery-item');
+  const grid = item.closest('.proj-gallery-grid');
+  item.remove();
+  const projIdx = grid.id.replace('pgallery-','');
+  updateGalleryHidden(projIdx, grid);
+};
+
+function updateGalleryHidden(projIdx, grid){
+  const urls = [...grid.querySelectorAll('.proj-gallery-item img')].map(img=>img.src);
+  const rep = document.querySelectorAll('#projetos-list .rep-item')[parseInt(projIdx)];
+  if(rep){ const h = rep.querySelector('[name="gallery"]'); if(h) h.value = urls.join(','); }
+}
 
 function valItemTpl(it, i){
   return `<div class="form-grid-3" style="gap:10px">
@@ -1311,10 +1653,10 @@ function renderHist(section){
 }
 window.applyHist = (url, sec) => {
   if(sec==='hero'){
-    const inp = document.getElementById('hero-img-url'); if(inp) inp.value = url;
-    previewUrl('hero', url); toast('Imagem do hero atualizada! Salve para confirmar.','ok');
+    const inp = document.getElementById('hero-main-url')||document.getElementById('hero-img-url'); if(inp) inp.value=url;
+    previewUrl('hero-main',url); toast('Aplicado ao hero! Salve para confirmar.','ok');
   } else {
-    const field = prompt('ID do campo onde aplicar a URL:'); if(!field) return;
+    const field = prompt('ID do campo onde aplicar a URL (ex: sobre-img-url):'); if(!field) return;
     const el = document.getElementById(field); if(el){ el.value=url; toast('Aplicado!','ok'); }
   }
 };
@@ -1343,6 +1685,88 @@ window.confirmAction = (title, sub, cb) => {
   document.getElementById('confirm-yes-btn').onclick = () => { closeConfirm(); if(_cb) _cb(); };
 };
 window.closeConfirm = () => document.getElementById('confirm-overlay').classList.remove('show');
+
+/* ─── FONT SIZE UPDATE ─── */
+window.fsgUpdate = (key, val, silent=false) => {
+  const display = document.getElementById('fsv-'+key);
+  if(display) display.textContent = val+'px';
+  if(!silent) toast(`Fonte atualizada: ${val}px — salve para confirmar`,'ok');
+};
+
+/* ─── BLOCKS ORDER ─── */
+const BLOCKS_DEF = [
+  {id:'home',    label:'Hero',          icon:'<path d="M3 9h18M9 21V9"/><rect x="3" y="3" width="18" height="18" rx="3"/>'},
+  {id:'sobre',   label:'Sobre',         icon:'<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>'},
+  {id:'servicos',label:'Serviços',      icon:'<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'},
+  {id:'clientes',label:'Clientes',      icon:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'},
+  {id:'projetos',label:'Projetos',      icon:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'},
+  {id:'valores', label:'Valores',       icon:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>'},
+  {id:'depoimentos',label:'Depoimentos',icon:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>'},
+  {id:'contato', label:'CTA / Contato', icon:'<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>'},
+  {id:'faq',     label:'FAQ',           icon:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>'},
+];
+
+let _blocksOrder = BLOCKS_DEF.map(b=>({...b, visible:true}));
+let _dragIdx = null;
+
+function buildBlocksOrder(savedOrder){
+  if(savedOrder) applyBlocksOrder(savedOrder);
+  renderBlocksOrder();
+}
+
+function applyBlocksOrder(arr){
+  if(!arr||!arr.length) return;
+  _blocksOrder = arr.map(item => {
+    const def = BLOCKS_DEF.find(b=>b.id===item.id) || item;
+    return {...def, visible: item.visible !== false};
+  });
+  /* garante que blocos novos não fiquem de fora */
+  BLOCKS_DEF.forEach(b => { if(!_blocksOrder.find(x=>x.id===b.id)) _blocksOrder.push({...b,visible:true}); });
+}
+
+function renderBlocksOrder(){
+  const wrap = document.getElementById('blocks-order-list');
+  if(!wrap) return;
+  wrap.innerHTML = _blocksOrder.map((b,i)=>`
+    <div class="block-order-item" draggable="true" data-idx="${i}"
+      ondragstart="dragStart(${i})" ondragover="dragOver(event,${i})"
+      ondragend="dragEnd()" ondrop="dragDrop(${i})">
+      <div class="boi-handle"><span></span><span></span><span></span></div>
+      <div class="boi-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${b.icon}</svg></div>
+      <span class="boi-label">${b.label}</span>
+      <button class="boi-toggle toggle ${b.visible?'on':''}" onclick="toggleBlock(${i})" title="${b.visible?'Visível':'Oculto'}"></button>
+    </div>
+  `).join('');
+}
+
+window.toggleBlock = (i) => {
+  _blocksOrder[i].visible = !_blocksOrder[i].visible;
+  renderBlocksOrder();
+};
+window.dragStart = (i) => { _dragIdx = i; setTimeout(()=>{ const el=document.querySelector(`[data-idx="${i}"]`); if(el) el.classList.add('dragging'); },0); };
+window.dragOver  = (e, i) => { e.preventDefault(); document.querySelectorAll('.block-order-item').forEach(el=>el.classList.remove('drag-over')); const el=document.querySelector(`[data-idx="${i}"]`); if(el) el.classList.add('drag-over'); };
+window.dragEnd   = () => { document.querySelectorAll('.block-order-item').forEach(el=>el.classList.remove('dragging','drag-over')); _dragIdx=null; };
+window.dragDrop  = (toIdx) => {
+  if(_dragIdx===null||_dragIdx===toIdx) return;
+  const moved = _blocksOrder.splice(_dragIdx,1)[0];
+  _blocksOrder.splice(toIdx,0,moved);
+  renderBlocksOrder();
+};
+
+function collectBlocksOrder(){
+  return _blocksOrder.map(b=>({id:b.id,visible:b.visible}));
+}
+
+window.saveBlocksOrder = async () => {
+  showLoad('Salvando ordem...');
+  try{
+    await setDoc(doc(db,'site','config'),{blocks_order:collectBlocksOrder()},{merge:true});
+    localStorage.removeItem('site_cache_v1');
+    toast('Ordem salva!','ok');
+  }catch(e){ toast('Erro: '+e.message,'err'); }
+  finally{ hideLoad(); }
+};
+
 </script>
 </body>
 </html>

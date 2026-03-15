@@ -26,7 +26,7 @@ button{font-family:inherit;cursor:none}
   --bd:rgba(255,255,255,.07);--sf:rgba(255,255,255,.04);
 }
 
-/* ─── CURSOR ─── */
+/* ─── CURSOR + RASTRO TINTA NEON ─── */
 #cur-d{position:fixed;width:10px;height:10px;background:var(--pk);border-radius:50%;
   pointer-events:none;z-index:9999;transform:translate(-50%,-50%);
   transition:width .18s,height .18s,background .18s}
@@ -35,6 +35,11 @@ button{font-family:inherit;cursor:none}
   transition:all .14s ease}
 body.ch #cur-d{width:18px;height:18px;background:var(--pv)}
 body.ch #cur-r{width:66px;height:66px;border-color:var(--pk);opacity:.7}
+#ink-canvas{
+  position:fixed;inset:0;
+  pointer-events:none;   /* nunca bloqueia cliques */
+  z-index:9989;          /* abaixo do cursor, acima do conteúdo */
+}
 
 /* ─── NOISE ─── */
 .noise{position:fixed;inset:0;z-index:8800;pointer-events:none;opacity:.45;
@@ -129,21 +134,64 @@ nav.scrolled{padding:14px 64px;background:rgba(8,0,15,.93);
 
 .hero-visual{position:relative;z-index:2;animation:fadeRight .9s .3s ease both}
 @keyframes fadeRight{from{opacity:0;transform:translateX(80px)}to{opacity:1;transform:translateX(0)}}
-/* wrapper para elementos flutuantes */
-.hero-frame-wrap{position:relative;display:block;overflow:visible}
-.hero-frame{border-radius:28px;overflow:hidden;position:relative;
-  background:transparent;border:none;aspect-ratio:3/4;
+
+/* ── HERO VISUAL: PNG principal + 2 PNGs flutuantes sem moldura ── */
+.hero-frame-wrap{position:relative;display:block;overflow:visible;width:420px;height:560px}
+
+/* BG pulsante — fica atrás, anima junto com o glow */
+.hero-bg-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;border-radius:28px;z-index:1;
+  animation:bg-pulse 5s ease-in-out infinite;
+}
+@keyframes bg-pulse{
+  0%,100%{transform:scale(1);filter:brightness(1)}
+  50%{transform:scale(1.04);filter:brightness(1.15)}
+}
+
+/* Glow radial pulsante */
+.hero-glow-ring{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:85%;height:85%;border-radius:50%;z-index:2;pointer-events:none;
+  background:radial-gradient(ellipse,rgba(255,26,108,.32) 0%,rgba(123,31,255,.22) 45%,transparent 72%);
+  animation:glow-pulse 5s ease-in-out infinite;
+}
+@keyframes glow-pulse{
+  0%,100%{opacity:.7;transform:translate(-50%,-50%) scale(1)}
+  50%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}
+}
+
+/* PNG principal — sem moldura, sem fundo, flutua */
+.hero-main-img{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:contain;z-index:4;
   animation:frame-float 6s ease-in-out infinite;
-  box-shadow:none}
+  filter:drop-shadow(0 24px 60px rgba(123,31,255,.3));
+}
 @keyframes frame-float{
-  0%,100%{transform:translateY(0) scale(1);box-shadow:0 32px 80px;transparent;}
-  50%{transform:translateY(-14px) scale(1.012);box-shadow:0 48px 100px rgba(255,26,108,.2)}}
-.hero-frame img{width:100%;height:100%;object-fit:cover;transition:transform .7s ease}
-.hero-frame:hover img{transform:scale(1.05)}
-/* Canvas chroma key */
-#hero-canvas{width:100%;height:100%;object-fit:cover;display:block}
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-16px)}
+}
+
+/* PNG flutuante A — sem moldura, sem borda, sem fundo */
+.hero-float-a{
+  position:absolute;bottom:50px;left:-70px;z-index:5;
+  width:130px;height:auto;
+  animation:fl-float 7s ease-in-out infinite .5s;
+  filter:drop-shadow(0 12px 32px rgba(255,26,108,.25));
+}
+/* PNG flutuante B — sem moldura, sem borda, sem fundo */
+.hero-float-b{
+  position:absolute;top:30px;right:-64px;z-index:5;
+  width:110px;height:auto;
+  animation:fl-float 6s ease-in-out infinite 1.2s;
+  filter:drop-shadow(0 10px 28px rgba(123,31,255,.3));
+}
+
+/* Canvas / vídeo legados — ocultos */
+#hero-canvas{display:none}
 #hero-video-src{display:none}
-  background:linear-gradient(to top,rgba(123,31,255,.45) 0%,transparent 55%)}
+.hero-frame{display:none}
 
 /* ── FLUTUANTE: chip "Designer Gráfico · Brasília" — fora, canto inferior esq ── */
 .hf-chip{position:absolute;bottom:-20px;left:-36px;z-index:10;
@@ -261,11 +309,7 @@ section{padding:100px 64px;position:relative;z-index:1}
 .s-title{font-family:'Syne',sans-serif;font-weight:800;letter-spacing:-2px;line-height:1.05;
   font-size:clamp(34px,4.5vw,58px)}
 
-/* ══════════════════════════════════
-   ─── ABOUT — NOVO LAYOUT ──
-   Linha 1: título (esquerda) | tópicos (direita)
-   Linha 2: skills full-width
-══════════════════════════════════ */
+/* ─── ABOUT — com imagem lateral ─── */
 #sobre{padding:100px 64px}
 .about-top{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;
   margin-bottom:52px}
@@ -280,7 +324,30 @@ section{padding:100px 64px;position:relative;z-index:1}
 .btn-briefing:hover{transform:translateY(-3px);box-shadow:0 18px 50px var(--pk-gl)}
 .btn-briefing svg{width:18px;height:18px;flex-shrink:0}
 
-.about-right{display:flex;flex-direction:column;gap:14px}
+/* Coluna direita: imagem + tags flutuantes */
+.about-right{position:relative;display:flex;flex-direction:column;gap:14px}
+.about-img-wrap{position:relative;border-radius:24px;overflow:hidden;aspect-ratio:4/5}
+.about-img-wrap img{width:100%;height:100%;object-fit:cover;
+  transition:transform .6s ease}
+.about-img-wrap:hover img{transform:scale(1.04)}
+.about-img-glow{position:absolute;bottom:0;left:0;right:0;height:55%;
+  background:linear-gradient(to top,rgba(8,0,15,.7),transparent);pointer-events:none}
+
+/* Tags flutuantes ao redor da imagem do sobre */
+.about-tag{
+  position:absolute;z-index:5;
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(8,0,15,.88);backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,.1);border-radius:100px;
+  padding:7px 14px;font-size:12px;font-weight:600;color:var(--off);
+  white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.4);
+}
+.about-tag .atag-dot{width:7px;height:7px;border-radius:50%;background:var(--pk);
+  animation:pulse 2s ease infinite;flex-shrink:0}
+.atag-1{top:12%;left:-28px;animation:fl-float 5s ease-in-out infinite}
+.atag-2{top:44%;right:-28px;animation:fl-float 6s ease-in-out infinite .7s}
+.atag-3{bottom:14%;left:-20px;animation:fl-float 7s ease-in-out infinite 1.4s}
+
 .about-badge-big{background:linear-gradient(135deg,var(--pk),var(--pv));
   padding:28px 32px;border-radius:22px;font-family:'Syne',sans-serif;font-weight:800;
   font-size:clamp(22px,2.8vw,36px);line-height:1.1;letter-spacing:-1px;margin-bottom:2px}
@@ -395,8 +462,123 @@ section{padding:100px 64px;position:relative;z-index:1}
 .p-static-n{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px}
 .proj-more{text-align:center;margin-top:60px}
 
-/* ─── PROJECT FULLSCREEN PAGE ─── */
-.proj-page{position:fixed;inset:0;background:var(--bg);z-index:5000;
+/* ─── PROJECTS — CARROSSEL 3D ─── */
+#projetos{padding:100px 0;overflow:hidden}
+.proj-head{display:flex;justify-content:space-between;align-items:flex-end;
+  margin-bottom:64px;padding:0 64px}
+
+/* Track externo — sem overflow para permitir scale */
+.proj-carousel-wrap{position:relative;width:100%;padding:40px 0 60px}
+.proj-carousel-track{
+  display:flex;align-items:center;justify-content:center;
+  gap:0;position:relative;height:480px;
+  cursor:grab;user-select:none;
+}
+.proj-carousel-track:active{cursor:grabbing}
+
+/* Card do carrossel */
+.pc-card{
+  position:absolute;
+  width:320px;height:420px;border-radius:22px;overflow:hidden;
+  transition:transform .55s cubic-bezier(.4,0,.2,1),
+             opacity .55s ease,
+             filter .55s ease,
+             z-index 0s .28s;
+  cursor:pointer;flex-shrink:0;
+  will-change:transform,opacity;
+}
+.pc-card img{
+  width:100%;height:100%;object-fit:cover;
+  transition:transform .6s ease;display:block;
+}
+.pc-card:hover img{transform:scale(1.04)}
+.pc-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(8,0,15,.95) 0%,rgba(8,0,15,.3) 50%,transparent 75%);
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:24px;opacity:0;transition:opacity .35s ease;
+}
+.pc-card.center .pc-overlay{opacity:1}
+.pc-cat{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--pk);margin-bottom:6px}
+.pc-name{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;
+  line-height:1.2;letter-spacing:-.3px;margin-bottom:10px}
+.pc-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;
+  font-weight:600;color:var(--pk2);transition:gap .2s}
+.pc-card.center .pc-link:hover{gap:10px}
+
+/* Badge "destaque" no card central */
+.pc-badge{
+  position:absolute;top:16px;left:16px;z-index:2;
+  background:var(--pk);color:#fff;padding:5px 12px;
+  border-radius:100px;font-size:11px;font-weight:700;
+  letter-spacing:.5px;opacity:0;transform:translateY(-8px);
+  transition:opacity .4s ease,transform .4s ease;
+}
+.pc-card.center .pc-badge{opacity:1;transform:translateY(0)}
+
+/* Setas de navegação */
+.proj-nav{
+  display:flex;gap:12px;justify-content:center;margin-top:32px;
+  align-items:center;
+}
+.proj-nav-btn{
+  width:48px;height:48px;border-radius:50%;
+  border:1.5px solid var(--bd);background:var(--sf);
+  color:var(--mu);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .25s ease;flex-shrink:0;
+}
+.proj-nav-btn svg{width:18px;height:18px}
+.proj-nav-btn:hover{border-color:var(--pk);color:var(--pk);background:rgba(255,26,108,.08)}
+.proj-nav-dots{display:flex;gap:7px;align-items:center}
+.proj-nav-dot{
+  width:7px;height:7px;border-radius:50%;background:var(--bd);
+  transition:all .3s ease;cursor:pointer;
+}
+.proj-nav-dot.active{width:22px;border-radius:4px;background:var(--pk)}
+.proj-more{text-align:center;margin-top:40px;padding:0 64px}
+
+/* ─── INSTAGRAM SECTION ─── */
+.insta-section{padding:100px 64px;background:var(--bg2);overflow:hidden}
+.insta-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:48px}
+.insta-handle{display:inline-flex;align-items:center;gap:9px;color:var(--pk2);
+  font-size:14px;font-weight:600;margin-top:8px}
+.insta-handle svg{width:16px;height:16px}
+.insta-embed-wrap{
+  background:var(--sf);border:1px solid var(--bd);border-radius:20px;
+  padding:28px;min-height:260px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;
+}
+.insta-embed-wrap iframe,.insta-embed-wrap .elfsight-app,.insta-embed-wrap .curator-feed{
+  width:100%;border:none;
+}
+/* Placeholder enquanto não há widget */
+.insta-placeholder{
+  text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.insta-placeholder svg{width:48px;height:48px;color:var(--pk);opacity:.5}
+.insta-placeholder-txt{font-size:14px;color:var(--mu);max-width:360px;line-height:1.6}
+.insta-placeholder code{
+  font-size:12px;background:var(--bg3);padding:3px 8px;border-radius:5px;color:var(--pk2)
+}
+.insta-grid-fallback{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:14px;width:100%;
+}
+.insta-post{
+  aspect-ratio:1;border-radius:12px;overflow:hidden;position:relative;
+  background:var(--bg3);cursor:pointer;
+}
+.insta-post img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease}
+.insta-post:hover img{transform:scale(1.07)}
+.insta-post-overlay{
+  position:absolute;inset:0;background:rgba(255,26,108,.65);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .25s ease;
+}
+.insta-post:hover .insta-post-overlay{opacity:1}
+.insta-post-overlay svg{width:26px;height:26px;color:#fff}
   overflow-y:auto;transform:translateY(100%);
   transition:transform .55s cubic-bezier(.4,0,.2,1);opacity:0;pointer-events:none}
 .proj-page.open{transform:translateY(0);opacity:1;pointer-events:all}
@@ -428,9 +610,10 @@ section{padding:100px 64px;position:relative;z-index:1}
 .pp-behance:hover{background:#d90050;transform:translateY(-3px);
   box-shadow:0 16px 40px var(--pk-gl)}
 
-/* ─── VALUES ─── */
-.vals-section{display:grid;grid-template-columns:1fr 1fr;gap:80px;
-  align-items:center;background:var(--bg2)}
+/* ─── VALUES — com imagem lateral e tags em linha ─── */
+.vals-section{background:var(--bg2);padding:100px 64px}
+.vals-inner{display:grid;grid-template-columns:1fr auto 1fr;gap:60px;align-items:center;margin-bottom:48px}
+.vals-left{}
 .vals-desc{color:var(--mu);font-size:16px;line-height:1.75;margin:20px 0 36px}
 .vals-list{display:flex;flex-direction:column;gap:0}
 .v-item{display:flex;align-items:flex-start;gap:22px;padding:22px 0;
@@ -443,6 +626,21 @@ section{padding:100px 64px;position:relative;z-index:1}
   letter-spacing:-.3px;margin-bottom:5px}
 .v-sub{color:var(--mu);font-size:14px;line-height:1.65}
 .v-item.active .v-lbl{color:var(--pk)}
+
+/* Imagem central/lateral dos valores — sem moldura */
+.vals-center-img{width:260px;flex-shrink:0;position:relative}
+.vals-center-img img{
+  width:100%;border-radius:0;object-fit:contain;aspect-ratio:auto;
+  filter:drop-shadow(0 24px 64px rgba(123,31,255,.22));
+  animation:frame-float 7s ease-in-out infinite;
+  background:transparent;
+}
+.vals-center-glow{
+  position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);
+  width:60%;height:40px;border-radius:50%;pointer-events:none;
+  background:rgba(255,26,108,.18);filter:blur(20px);
+}
+
 .vals-right{display:flex;flex-direction:column;gap:18px}
 .vr-big{background:linear-gradient(135deg,var(--pk),var(--pv));
   border-radius:24px;padding:40px;text-align:center}
@@ -456,6 +654,21 @@ section{padding:100px 64px;position:relative;z-index:1}
   background:linear-gradient(135deg,var(--off),var(--pv2));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .vr-sm-l{font-size:12px;color:var(--mu);margin-top:5px}
+
+/* Tags em linha única abaixo dos valores */
+.vals-tags-row{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+  padding-top:36px;border-top:1px solid var(--bd);
+}
+.vals-tag-pill{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--sf);border:1px solid var(--bd);
+  border-radius:100px;padding:8px 18px;
+  font-size:13px;font-weight:600;color:var(--mu);
+  transition:all .25s ease;
+}
+.vals-tag-pill:hover{border-color:var(--pk);color:var(--pk);background:rgba(255,26,108,.06)}
+.vals-tag-pill svg{width:13px;height:13px;flex-shrink:0;color:var(--pk)}
 
 /* ─── TESTIMONIALS ─── */
 .test-section{background:var(--bg)}
@@ -683,6 +896,7 @@ select.bf-input option[value=""]{color:rgba(242,234,255,.44)}
 
 <div id="cur-d"></div>
 <div id="cur-r"></div>
+<canvas id="ink-canvas"></canvas>
 <div class="noise"></div>
 <div id="sp"></div>
 
@@ -733,61 +947,31 @@ select.bf-input option[value=""]{color:rgba(242,234,255,.44)}
   <div class="hero-visual">
     <div class="hero-frame-wrap">
 
-      <!-- ── FLUTUANTE: badge Disponível ── -->
-      <div class="hf-badge">
-        <div class="hf-badge-dot"></div>
-        <!-- ícone flat: check-circle -->
-        <svg class="hf-badge-icon" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="11" fill="rgba(255,255,255,.2)"/>
-          <path d="M7 12.5l3.5 3.5L17 9" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Disponível
-      </div>
+      <!-- BG pulsante (fica atrás, com glow) -->
+      <img class="hero-bg-img" id="hero-bg-img"
+           src="assets/hero-bg.jpg"
+           onerror="this.style.opacity='0'" alt="">
 
+      <!-- Glow radial pulsante -->
+      <div class="hero-glow-ring"></div>
 
-      <!-- ── FLUTUANTE: anel ciano ── -->
-      <div class="hf-ring">
-        <svg width="54" height="54" viewBox="0 0 54 54" fill="none">
-          <circle cx="27" cy="27" r="22" stroke="#00D4FF" stroke-width="2.5" stroke-dasharray="7 5" opacity=".6"/>
-          <circle cx="27" cy="27" r="8" fill="#00D4FF" opacity=".15"/>
-        </svg>
-      </div>
+      <!-- PNG principal sem fundo — flutua -->
+      <img class="hero-main-img" id="hero-main-img"
+           src="assets/hero-foto.png"
+           onerror="this.style.opacity='0'"
+           alt="Jéssica Pereira">
 
-      <!-- ── FLUTUANTE: grade de pontos ── -->
-      <div class="hf-dots">
-        <span></span><span></span><span></span>
-        <span></span><span></span><span></span>
-        <span></span><span></span><span></span>
-      </div>
+      <!-- PNG flutuante A — canto inferior esquerdo, sem moldura -->
+      <img class="hero-float-a" id="hero-float-a"
+           src="assets/hero-float-a.png"
+           onerror="this.style.display='none'"
+           alt="">
 
-      <!-- ── FLUTUANTE: plus ── -->
-      <div class="hf-plus">
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-          <path d="M14 4v20M4 14h20" stroke="#FF1A6C" stroke-width="2.5" stroke-linecap="round" opacity=".5"/>
-        </svg>
-      </div>
-
-      <!-- VÍDEO HERO COM CHROMA KEY (fundo verde removido) -->
-      <div class="hero-frame">
-        <!-- Vídeo oculto — fonte para o canvas -->
-        <video id="hero-video-src" src="assets/hero-video.mp4"
-               autoplay loop muted playsinline crossorigin="anonymous"></video>
-        <!-- Canvas onde o chroma key é aplicado em tempo real -->
-        <canvas id="hero-canvas"></canvas>
-      </div>
-
-      <!-- ── FLUTUANTE: chip Designer Gráfico (fora da foto, abaixo esquerda) ── -->
-      <div class="hf-chip">
-        <div class="hf-chip-icon">
-          <!-- ícone flat: pen-tool -->
-          <svg viewBox="0 0 24 24" fill="none">
-            <path d="M12 20h9" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
-            <path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"
-                  fill="#fff" opacity=".9"/>
-          </svg>
-        </div>
-        Designer Gráfico · Brasília
-      </div>
+      <!-- PNG flutuante B — canto superior direito, sem moldura -->
+      <img class="hero-float-b" id="hero-float-b"
+           src="assets/hero-float-b.png"
+           onerror="this.style.display='none'"
+           alt="">
 
     </div>
   </div>
@@ -850,7 +1034,7 @@ select.bf-input option[value=""]{color:rgba(242,234,255,.44)}
 
 <!-- ════════ ABOUT ════════ -->
 <section id="sobre">
-  <!-- Linha superior: título + tópicos lado a lado -->
+  <!-- Linha superior: título + imagem com tags lado a lado -->
   <div class="about-top">
     <div class="about-left rv">
       <span class="s-tag">Sobre mim</span>
@@ -867,19 +1051,26 @@ select.bf-input option[value=""]{color:rgba(242,234,255,.44)}
       </button>
     </div>
 
+    <!-- Coluna direita: imagem + tags flutuantes -->
     <div class="about-right rv d2">
-      <div class="about-vals">
-        <div class="about-val">
-          <div class="av-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg></div>
-          <span class="av-txt">Criatividade com propósito</span>
+      <div class="about-img-wrap">
+        <img id="about-img" src="assets/sobre-foto.jpg"
+             onerror="this.style.opacity='0.2'"
+             alt="Jéssica Pereira">
+        <div class="about-img-glow"></div>
+
+        <!-- Tags flutuantes ao redor -->
+        <div class="about-tag atag-1">
+          <span class="atag-dot"></span>
+          Criatividade com propósito
         </div>
-        <div class="about-val">
-          <div class="av-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg></div>
-          <span class="av-txt">Qualidade e atenção ao detalhe</span>
+        <div class="about-tag atag-2">
+          <span class="atag-dot" style="background:var(--pv2)"></span>
+          Qualidade e atenção
         </div>
-        <div class="about-val">
-          <div class="av-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-          <span class="av-txt">Soluções personalizadas para cada cliente</span>
+        <div class="about-tag atag-3">
+          <span class="atag-dot" style="background:#2ECC71"></span>
+          Soluções personalizadas
         </div>
       </div>
     </div>
@@ -1072,7 +1263,7 @@ select.bf-input option[value=""]{color:rgba(242,234,255,.44)}
   </div>
 </section>
 
-<!-- ════════ PROJECTS ════════ -->
+<!-- ════════ PROJECTS — CARROSSEL 3D ════════ -->
 <section id="projetos">
   <div class="proj-head">
     <div>
@@ -1081,77 +1272,25 @@ select.bf-input option[value=""]{color:rgba(242,234,255,.44)}
     </div>
     <a href="https://www.behance.net/jssicapereira3" target="_blank" class="btn-out rv">Ver tudo no Behance →</a>
   </div>
-  <div class="proj-grid">
-    <!--
-      ★ COMO TROCAR AS CAPAS DOS PROJETOS:
-      Coloque as imagens em assets/projetos/capas/
-      Nomes: capa1.jpg até capa7.jpg
-      Ou edite os src= abaixo diretamente
-    -->
-    <div class="p-card rv" onclick="openProject(4)">
-      <img class="p-img" src="assets/projetos/capas/capa5.jpg" onerror="this.src='https://mir-s3-cdn-cf.behance.net/projects/404/50d3d6224509059.Y3JvcCwxNjE2LDEyNjQsMTU2LDEyOA.jpg'" alt="MAIS MUNDO MENOS TELA" loading="lazy">
-      <div class="p-overlay">
-        <div class="p-cat">Campanha · Design</div>
-        <div class="p-name">MAIS MUNDO, MENOS TELA | PROGRESSO</div>
-        <span class="p-link">Ver projeto completo →</span>
-      </div>
-      <div class="p-static-lbl"><div class="p-static-n">CAMPANHA MAIS MUNDO, MENOS TELA</div></div>
-    </div>
-    <div class="p-card rv d1" onclick="openProject(1)">
-      <img class="p-img" src="assets/projetos/capas/capa2.jpg" onerror="this.src='https://mir-s3-cdn-cf.behance.net/projects/404/a1f377242559691.Y3JvcCwxMzgwLDEwODAsNTMzLDA.png'" alt="INTERATIVE EVENTOS" loading="lazy">
-      <div class="p-overlay">
-        <div class="p-cat">Identidade Visual · Eventos</div>
-        <div class="p-name">ID VISUAL 2026 | INTERATIVE EVENTOS</div>
-        <span class="p-link">Ver projeto completo →</span>
-      </div>
-      <div class="p-static-lbl"><div class="p-static-n">ID VISUAL · INTERATIVE EVENTOS</div></div>
-    </div>
-    <div class="p-card rv" onclick="openProject(2)">
-      <img class="p-img" src="assets/projetos/capas/capa3.jpg" onerror="this.src='https://mir-s3-cdn-cf.behance.net/projects/404/853fb1242560853.Y3JvcCwxNjE2LDEyNjQsMjA4LDY0.png'" alt="INOVE TOPOGRAFIA" loading="lazy">
-      <div class="p-overlay">
-        <div class="p-cat">Identidade Visual</div>
-        <div class="p-name">ID VISUAL | INOVE SOLUÇÕES EM TOPOGRAFIA</div>
-        <span class="p-link">Ver projeto completo →</span>
-      </div>
-      <div class="p-static-lbl"><div class="p-static-n">INOVE SOLUÇÕES EM TOPOGRAFIA</div></div>
-    </div>
-    <div class="p-card rv d1" onclick="openProject(3)">
-      <img class="p-img" src="assets/projetos/capas/capa4.jpg" onerror="this.src='https://mir-s3-cdn-cf.behance.net/projects/404/c97424242560095.Y3JvcCwxMzIzLDEwMzUsNTkzLDE2.png'" alt="MULHER NÃO SE CALE" loading="lazy">
-      <div class="p-overlay">
-        <div class="p-cat">Campanha · Identidade Visual</div>
-        <div class="p-name">ID VISUAL | MULHER NÃO SE CALE 2026</div>
-        <span class="p-link">Ver projeto completo →</span>
-      </div>
-      <div class="p-static-lbl"><div class="p-static-n">MULHER NÃO SE CALE 2026</div></div>
-    </div>
-    <div class="p-card rv d2" onclick="openProject(0)">
-      <img class="p-img" src="assets/projetos/capas/capa1.jpg" onerror="this.src='https://mir-s3-cdn-cf.behance.net/projects/404/63f952242562155.Y3JvcCw1NzU0LDQ1MDEsMTEyNSww.png'" alt="MOBE EDUC" loading="lazy">
-      <div class="p-overlay">
-        <div class="p-cat">Identidade Visual · Social Media</div>
-        <div class="p-name">ID VISUAL SOCIAL MEDIA | MOBE EDUC</div>
-        <span class="p-link">Ver projeto completo →</span>
-      </div>
-      <div class="p-static-lbl"><div class="p-static-n">ID VISUAL SOCIAL MEDIA · MOBE EDUC</div></div>
-    </div>
-    <div class="p-card rv" onclick="openProject(5)">
-      <img class="p-img" src="assets/projetos/capas/capa6.jpg" onerror="this.src='https://mir-s3-cdn-cf.behance.net/projects/404/31bd2a224574445.680da1817f6e2.jpg'" alt="4 ARTES PAPELARIA" loading="lazy">
-      <div class="p-overlay">
-        <div class="p-cat">Identidade Visual · Papelaria</div>
-        <div class="p-name">ID VISUAL | 4 ARTES — PAPELARIA CRIATIVA</div>
-        <span class="p-link">Ver projeto completo →</span>
-      </div>
-      <div class="p-static-lbl"><div class="p-static-n">4 ARTES · PAPELARIA CRIATIVA</div></div>
-    </div>
-    <div class="p-card rv d1" onclick="openProject(6)">
-      <img class="p-img" src="assets/projetos/capas/capa7.jpg" onerror="this.src='https://mir-s3-cdn-cf.behance.net/projects/404/897ef2223092805.Y3JvcCwxOTIwLDE1MDEsMCw0.png'" alt="JUNTAR BLOCOS GAME" loading="lazy">
-      <div class="p-overlay">
-        <div class="p-cat">UI / UX Design · Game</div>
-        <div class="p-name">UI/UX | JUNTAR BLOCOS | GAME KIDS</div>
-        <span class="p-link">Ver projeto completo →</span>
-      </div>
-      <div class="p-static-lbl"><div class="p-static-n">UI/UX · JUNTAR BLOCOS · GAME KIDS</div></div>
+
+  <div class="proj-carousel-wrap">
+    <div class="proj-carousel-track" id="proj-track"
+         onmousedown="pcDragStart(event)"
+         ontouchstart="pcTouchStart(event)">
+      <!-- Cards gerados por JS -->
     </div>
   </div>
+
+  <div class="proj-nav">
+    <button class="proj-nav-btn" id="pc-prev" onclick="pcMove(-1)" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <div class="proj-nav-dots" id="pc-dots"></div>
+    <button class="proj-nav-btn" id="pc-next" onclick="pcMove(1)" aria-label="Próximo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </div>
+
   <div class="proj-more">
     <a href="https://www.behance.net/jssicapereira3" target="_blank" class="btn-pk">
       Ver todos os projetos no Behance
@@ -1162,36 +1301,161 @@ select.bf-input option[value=""]{color:rgba(242,234,255,.44)}
 
 <!-- ════════ VALUES ════════ -->
 <section class="vals-section" id="valores">
-  <div class="vals-left">
-    <span class="s-tag rv">Meus valores</span>
-    <h2 class="s-title rv d1">O que guia<br><span style="color:var(--pk)">meu trabalho</span></h2>
-    <p class="vals-desc rv d2">Cada projeto é uma parceria. Trabalho com foco em entregar não apenas design bonito, mas soluções que fazem sentido para o negócio do cliente.</p>
-    <div class="vals-list rv d3">
-      <div class="v-item active">
-        <div class="v-num">01</div>
-        <div><div class="v-lbl">Criatividade</div><div class="v-sub">Cada marca tem uma história única. Meu trabalho é encontrá-la e traduzir em design.</div></div>
+  <div class="vals-inner">
+    <!-- Esquerda: textos + lista de valores -->
+    <div class="vals-left">
+      <span class="s-tag rv">Meus valores</span>
+      <h2 class="s-title rv d1">O que guia<br><span style="color:var(--pk)">meu trabalho</span></h2>
+      <p class="vals-desc rv d2">Cada projeto é uma parceria. Trabalho com foco em entregar não apenas design bonito, mas soluções que fazem sentido para o negócio do cliente.</p>
+      <div class="vals-list rv d3">
+        <div class="v-item active">
+          <div class="v-num">01</div>
+          <div><div class="v-lbl">Criatividade</div><div class="v-sub">Cada marca tem uma história única. Meu trabalho é encontrá-la e traduzir em design.</div></div>
+        </div>
+        <div class="v-item">
+          <div class="v-num">02</div>
+          <div><div class="v-lbl">Qualidade</div><div class="v-sub">Atenção ao detalhe em cada pixel. Entrego excelência sem abrir mão do prazo.</div></div>
+        </div>
+        <div class="v-item">
+          <div class="v-num">03</div>
+          <div><div class="v-lbl">Responsabilidade</div><div class="v-sub">Comprometida com resultados reais. Ouço, entendo e entrego o que o cliente precisa.</div></div>
+        </div>
       </div>
-      <div class="v-item">
-        <div class="v-num">02</div>
-        <div><div class="v-lbl">Qualidade</div><div class="v-sub">Atenção ao detalhe em cada pixel. Entrego excelência sem abrir mão do prazo.</div></div>
+    </div>
+
+    <!-- Centro: imagem lateral -->
+    <div class="vals-center-img rv d1">
+      <img id="vals-img" src="assets/valores-foto.jpg"
+           onerror="this.style.opacity='0.1'" alt="">
+      <div class="vals-center-glow"></div>
+    </div>
+
+    <!-- Direita: stats -->
+    <div class="vals-right rv d2">
+      <div class="vr-big">
+        <div class="vr-big-n">+100</div>
+        <div class="vr-big-l">Projetos entregues com sucesso</div>
       </div>
-      <div class="v-item">
-        <div class="v-num">03</div>
-        <div><div class="v-lbl">Responsabilidade</div><div class="v-sub">Comprometida com resultados reais. Ouço, entendo e entrego o que o cliente precisa.</div></div>
+      <div class="vr-smalls">
+        <div class="vr-sm"><div class="vr-sm-n">6+</div><div class="vr-sm-l">Anos de experiência</div></div>
+        <div class="vr-sm"><div class="vr-sm-n">100%</div><div class="vr-sm-l">Dedicação em cada projeto</div></div>
+        <div class="vr-sm"><div class="vr-sm-n">∞</div><div class="vr-sm-l">Criatividade sem limites</div></div>
+        <div class="vr-sm"><div class="vr-sm-n">5★</div><div class="vr-sm-l">Avaliação dos clientes</div></div>
       </div>
     </div>
   </div>
-  <div class="vals-right rv d2">
-    <div class="vr-big">
-      <div class="vr-big-n">+100</div>
-      <div class="vr-big-l">Projetos entregues com sucesso</div>
+
+  <!-- Tags em linha única abaixo -->
+  <div class="vals-tags-row rv d4">
+    <div class="vals-tag-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      Identidade Visual
     </div>
-    <div class="vr-smalls">
-      <div class="vr-sm"><div class="vr-sm-n">6+</div><div class="vr-sm-l">Anos de experiência</div></div>
-      <div class="vr-sm"><div class="vr-sm-n">100%</div><div class="vr-sm-l">Dedicação em cada projeto</div></div>
-      <div class="vr-sm"><div class="vr-sm-n">∞</div><div class="vr-sm-l">Criatividade sem limites</div></div>
-      <div class="vr-sm"><div class="vr-sm-n">5★</div><div class="vr-sm-l">Avaliação dos clientes</div></div>
+    <div class="vals-tag-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>
+      Social Media
     </div>
+    <div class="vals-tag-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      UI / UX Design
+    </div>
+    <div class="vals-tag-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Criação de Logo
+    </div>
+    <div class="vals-tag-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+      Design Editorial
+    </div>
+    <div class="vals-tag-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="1"/><path d="M2 7h20M12 17v4M8 21h8"/></svg>
+      Landing Pages
+    </div>
+    <div class="vals-tag-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Papelaria
+    </div>
+    <div class="vals-tag-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg>
+      Motion Graphics
+    </div>
+    <div class="vals-tag-pill">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Branding
+    </div>
+  </div>
+</section>
+
+<!-- ════════ INSTAGRAM ════════ -->
+<section class="insta-section" id="instagram">
+  <div class="insta-head">
+    <div>
+      <span class="s-tag rv">Redes Sociais</span>
+      <h2 class="s-title rv d1">Me siga no <span style="color:var(--pk)">Instagram</span></h2>
+      <a href="https://www.instagram.com/jessicapereira.designer/" target="_blank" class="insta-handle rv d2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+        @jessicapereira.designer
+      </a>
+    </div>
+    <a href="https://www.instagram.com/jessicapereira.designer/" target="_blank" class="btn-out rv">
+      Ver perfil completo →
+    </a>
+  </div>
+
+  <div class="insta-embed-wrap">
+    <!--
+      ════════════════════════════════════════════════
+      INTEGRAÇÃO COM INSTAGRAM
+      Escolha UMA das opções abaixo e cole o código:
+
+      1. ELFSIGHT (gratuito até 200 views/mês):
+         → elfsight.com → Instagram Feed → gere o widget
+         → Cole aqui: <div class="elfsight-app-XXXX"></div>
+         → Adicione no <head>: <script src="https://static.elfsight.com/platform/platform.js"></script>
+
+      2. CURATOR.IO (gratuito até 100 posts):
+         → curator.io → crie feed do Instagram
+         → Cole o snippet gerado aqui
+
+      3. SNAPWIDGET.COM:
+         → snapwidget.com → gere o iframe
+         → Cole aqui: <iframe src="https://snapwidget.com/embed/XXXXX" ...></iframe>
+
+      4. LIGHT WIDGET (gratuito):
+         → lightwidget.com → crie widget responsivo
+         → Cole aqui
+
+      Enquanto não configurar, aparece o placeholder abaixo.
+      ════════════════════════════════════════════════
+
+      Cole aqui o código do seu widget de Instagram:
+    -->
+
+    <!-- PLACEHOLDER — remova quando colar o widget real -->
+    <div class="insta-placeholder">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+      <div class="insta-placeholder-txt">
+        Para exibir seus posts do Instagram aqui, cole o código de um serviço de embed.<br>
+        Recomendamos <strong>Elfsight</strong>, <strong>Curator.io</strong> ou <strong>LightWidget</strong> — todos gratuitos.<br><br>
+        Substitua este bloco pelo código gerado em qualquer um desses serviços.
+      </div>
+      <!-- Grade de exemplo com gradientes -->
+      <div class="insta-grid-fallback">
+        <div class="insta-post" style="background:linear-gradient(135deg,var(--pk),var(--pv))">
+          <div class="insta-post-overlay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/></svg></div>
+        </div>
+        <div class="insta-post" style="background:linear-gradient(135deg,var(--pv),#00D4FF)">
+          <div class="insta-post-overlay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/></svg></div>
+        </div>
+        <div class="insta-post" style="background:linear-gradient(135deg,#FF6B35,var(--pk))">
+          <div class="insta-post-overlay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/></svg></div>
+        </div>
+        <div class="insta-post" style="background:linear-gradient(135deg,var(--pk),#FFB347)">
+          <div class="insta-post-overlay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/></svg></div>
+        </div>
+      </div>
+    </div>
+    <!-- FIM PLACEHOLDER -->
   </div>
 </section>
 
@@ -1911,8 +2175,303 @@ renderStepper();updateNav();
   }
 
   video.addEventListener('loadeddata', processFrame);
-  // Tenta iniciar assim que possível
   if(video.readyState >= 2) processFrame();
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     CARROSSEL 3D DE PROJETOS
+══════════════════════════════════════════ -->
+<script>
+(function(){
+  /* ── DADOS DOS PROJETOS ── */
+  const PC_PROJECTS = [
+    { cat:'Identidade Visual · Social Media', nome:'ID VISUAL SOCIAL MEDIA | MOBE EDUC',
+      img:'assets/projetos/capas/capa1.jpg', fallback:'https://mir-s3-cdn-cf.behance.net/projects/404/63f952242562155.Y3JvcCw1NzU0LDQ1MDEsMTEyNSww.png', url:'https://www.behance.net/gallery/242562155/ID-VISUAL-SOCIAL-MEDIA-MOBE-EDUC' },
+    { cat:'Identidade Visual · Eventos', nome:'ID VISUAL 2026 | INTERATIVE EVENTOS',
+      img:'assets/projetos/capas/capa2.jpg', fallback:'https://mir-s3-cdn-cf.behance.net/projects/404/a1f377242559691.Y3JvcCwxMzgwLDEwODAsNTMzLDA.png', url:'https://www.behance.net/gallery/242559691/ID-VISUAL-2026-INTERATIVE-EVENTOS' },
+    { cat:'Identidade Visual', nome:'ID VISUAL | INOVE TOPOGRAFIA',
+      img:'assets/projetos/capas/capa3.jpg', fallback:'https://mir-s3-cdn-cf.behance.net/projects/404/853fb1242560853.Y3JvcCwxNjE2LDEyNjQsMjA4LDY0.png', url:'https://www.behance.net/gallery/242560853/ID-VISUAL-INOVE-SOLUCOES-EM-TOPOGRAFIA' },
+    { cat:'Campanha · Identidade Visual', nome:'MULHER NÃO SE CALE 2026',
+      img:'assets/projetos/capas/capa4.jpg', fallback:'https://mir-s3-cdn-cf.behance.net/projects/404/c97424242560095.Y3JvcCwxMzIzLDEwMzUsNTkzLDE2.png', url:'https://www.behance.net/gallery/242560095/ID-VISUAL-MULHER-NAO-SE-CALE-2026' },
+    { cat:'Campanha · Design', nome:'MAIS MUNDO, MENOS TELA | PROGRESSO',
+      img:'assets/projetos/capas/capa5.jpg', fallback:'https://mir-s3-cdn-cf.behance.net/projects/404/50d3d6224509059.Y3JvcCwxNjE2LDEyNjQsMTU2LDEyOA.jpg', url:'https://www.behance.net/gallery/224509059/MAIS-MUNDO-MENOS-TELA-PROGRESSO' },
+    { cat:'Identidade Visual · Papelaria', nome:'ID VISUAL | 4 ARTES — PAPELARIA CRIATIVA',
+      img:'assets/projetos/capas/capa6.jpg', fallback:'https://mir-s3-cdn-cf.behance.net/projects/404/31bd2a224574445.680da1817f6e2.jpg', url:'https://www.behance.net/gallery/224574445/ID-VISUAL-4-ARTES' },
+    { cat:'UI / UX Design · Game', nome:'UI/UX | JUNTAR BLOCOS | GAME KIDS',
+      img:'assets/projetos/capas/capa7.jpg', fallback:'https://mir-s3-cdn-cf.behance.net/projects/404/897ef2223092805.Y3JvcCwxOTIwLDE1MDEsMCw0.png', url:'https://www.behance.net/gallery/223092805/UIUX-JUNTAR-BLOCOS-GAME-KIDS' },
+  ];
+
+  const N = PC_PROJECTS.length;
+  let current = 0;
+  let isAnimating = false;
+  const track = document.getElementById('proj-track');
+  const dotsWrap = document.getElementById('pc-dots');
+
+  /* ── Som de rolagem (Web Audio API) ── */
+  let audioCtx = null;
+  function initAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+  function playScrollSound(){
+    try{
+      initAudio();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + .12);
+      gain.gain.setValueAtTime(.06, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .15);
+      osc.start(audioCtx.currentTime);
+      osc.stop(audioCtx.currentTime + .15);
+    } catch(e){}
+  }
+
+  /* ── Renderiza cards ── */
+  function renderCards(){
+    track.innerHTML = '';
+
+    /* Posições relativas: -2, -1, 0(center), +1, +2 */
+    const offsets = [-2,-1,0,1,2];
+    offsets.forEach(offset => {
+      const idx = ((current + offset) % N + N) % N;
+      const p = PC_PROJECTS[idx];
+      const card = document.createElement('div');
+      card.className = 'pc-card' + (offset===0?' center':'');
+
+      /* transform por posição */
+      const xMap   = {'-2':-520, '-1':-290, '0':0, '1':290, '2':520};
+      const scMap  = {'-2':.58,  '-1':.75,  '0':1, '1':.75, '2':.58};
+      const opMap  = {'-2':.22,  '-1':.55,  '0':1, '1':.55, '2':.22};
+      const zMap   = {'-2':0,    '-1':1,    '0':3, '1':1,   '2':0};
+      const blMap  = {'-2':'blur(4px)','-1':'blur(1px)','0':'none','1':'blur(1px)','2':'blur(4px)'};
+
+      card.style.cssText = `
+        transform: translateX(${xMap[offset]}px) scale(${scMap[offset]});
+        opacity: ${opMap[offset]};
+        z-index: ${zMap[offset]};
+        filter: ${blMap[offset]};
+        transition: transform .55s cubic-bezier(.4,0,.2,1), opacity .55s ease, filter .55s ease;
+      `;
+
+      card.innerHTML = `
+        <img src="${p.img}" alt="${p.nome}" loading="lazy"
+             onerror="this.src='${p.fallback}'">
+        <div class="pc-badge">✦ Destaque</div>
+        <div class="pc-overlay">
+          <div class="pc-cat">${p.cat}</div>
+          <div class="pc-name">${p.nome}</div>
+          <span class="pc-link">Ver no Behance →</span>
+        </div>
+      `;
+
+      if(offset === 0){
+        card.addEventListener('click', () => window.open(p.url,'_blank'));
+      } else if(offset === -1 || offset === 1){
+        card.addEventListener('click', () => pcMove(offset));
+      }
+
+      track.appendChild(card);
+    });
+
+    renderDots();
+  }
+
+  /* ── Dots ── */
+  function renderDots(){
+    dotsWrap.innerHTML = '';
+    PC_PROJECTS.forEach((_,i) => {
+      const d = document.createElement('div');
+      d.className = 'proj-nav-dot' + (i===current?' active':'');
+      d.onclick = () => { if(i!==current){ const diff=i-current; pcMoveTo(i); } };
+      dotsWrap.appendChild(d);
+    });
+  }
+
+  /* ── Navegação ── */
+  window.pcMove = function(dir){
+    if(isAnimating) return;
+    isAnimating = true;
+    playScrollSound();
+    current = ((current + dir) % N + N) % N;
+    renderCards();
+    setTimeout(()=>isAnimating=false, 560);
+  };
+  function pcMoveTo(idx){
+    if(isAnimating||idx===current) return;
+    isAnimating = true;
+    playScrollSound();
+    current = idx;
+    renderCards();
+    setTimeout(()=>isAnimating=false, 560);
+  }
+
+  /* ── Drag / Swipe ── */
+  let dragStartX = 0, dragDelta = 0, isDragging = false;
+
+  window.pcDragStart = function(e){
+    dragStartX = e.clientX; isDragging = true;
+    document.addEventListener('mousemove', pcDragMove);
+    document.addEventListener('mouseup', pcDragEnd);
+  };
+  function pcDragMove(e){
+    if(!isDragging) return;
+    dragDelta = e.clientX - dragStartX;
+  }
+  function pcDragEnd(){
+    isDragging = false;
+    document.removeEventListener('mousemove', pcDragMove);
+    document.removeEventListener('mouseup', pcDragEnd);
+    if(Math.abs(dragDelta) > 60) pcMove(dragDelta < 0 ? 1 : -1);
+    dragDelta = 0;
+  }
+
+  window.pcTouchStart = function(e){
+    dragStartX = e.touches[0].clientX;
+    track.addEventListener('touchmove', pcTouchMove, {passive:true});
+    track.addEventListener('touchend', pcTouchEnd);
+  };
+  function pcTouchMove(e){ dragDelta = e.touches[0].clientX - dragStartX; }
+  function pcTouchEnd(){
+    track.removeEventListener('touchmove', pcTouchMove);
+    track.removeEventListener('touchend', pcTouchEnd);
+    if(Math.abs(dragDelta) > 50) pcMove(dragDelta < 0 ? 1 : -1);
+    dragDelta = 0;
+  }
+
+  /* ── Teclado ── */
+  document.addEventListener('keydown', e => {
+    if(e.key==='ArrowLeft') pcMove(-1);
+    if(e.key==='ArrowRight') pcMove(1);
+  });
+
+  /* ── Auto-play suave ── */
+  let autoTimer = setInterval(()=>{ if(!isDragging) pcMove(1); }, 5000);
+  track.addEventListener('mouseenter', ()=>clearInterval(autoTimer));
+  track.addEventListener('mouseleave', ()=>{ autoTimer=setInterval(()=>pcMove(1),5000); });
+
+  renderCards();
+})();
+</script>
+
+<!-- ══════════════════════════════════════════
+     RASTRO DE TINTA NEON (CURSOR)
+══════════════════════════════════════════ -->
+<script>
+(function(){
+  const canvas = document.getElementById('ink-canvas');
+  const ctx = canvas.getContext('2d');
+
+  /* Paleta neon alternada */
+  const COLORS = ['#FF1A6C','#A96BFF','#00D4FF','#FF5FA0','#7B1FFF'];
+  let colorIdx = 0;
+
+  /* Resize */
+  function resize(){
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* Partículas de tinta */
+  const particles = [];
+  let mx = -999, my = -999, lastX = -999, lastY = -999;
+  let frame = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    const dx = mx - lastX, dy = my - lastY;
+    const speed = Math.sqrt(dx*dx + dy*dy);
+
+    /* Muito menos partículas — só gera quando há movimento real */
+    if(speed > 4){
+      const count = Math.min(Math.floor(speed * .08) + 1, 3);
+      for(let i = 0; i < count; i++){
+        const color = COLORS[colorIdx % COLORS.length];
+        const r = 1.5 + Math.random() * (2 + speed * .03);
+        const spread = speed * .1;
+        particles.push({
+          x: mx + (Math.random()-.5)*spread,
+          y: my + (Math.random()-.5)*spread,
+          vx: (Math.random()-.5)*1.2,
+          vy: (Math.random()-.5)*1.2 - 0.2,
+          r, color,
+          alpha: .7 + Math.random()*.2,
+          decay: .028 + Math.random()*.02,
+          type: Math.random() > .7 ? 1 : 0
+        });
+      }
+      if(speed > 14) colorIdx++;
+    }
+    lastX = mx; lastY = my;
+  });
+
+  /* Loop de animação */
+  function loop(){
+    /* SEMPRE clearRect — nunca pinta fundo, nunca some com o conteúdo */
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for(let i = particles.length - 1; i >= 0; i--){
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += .04; /* gravidade suave */
+      p.alpha -= p.decay;
+      p.r *= .985;
+
+      if(p.alpha <= 0 || p.r < .3){ particles.splice(i,1); continue; }
+
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+
+      if(p.type === 0){
+        /* Círculo neon com brilho */
+        const grad = ctx.createRadialGradient(p.x,p.y,0, p.x,p.y,p.r*2);
+        grad.addColorStop(0, p.color);
+        grad.addColorStop(.4, p.color);
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r*2, 0, Math.PI*2);
+        ctx.fill();
+        /* núcleo sólido */
+        ctx.fillStyle = '#fff';
+        ctx.globalAlpha = p.alpha * .5;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r*.4, 0, Math.PI*2);
+        ctx.fill();
+      } else {
+        /* Gota */
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = p.color;
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, p.r*.7, p.r*1.4, Math.atan2(p.vy,p.vx)+Math.PI/2, 0, Math.PI*2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      ctx.restore();
+    }
+
+    /* Brilho sutil no centro do cursor */
+    if(mx > 0){
+      ctx.save();
+      ctx.globalAlpha = .12;
+      const glow = ctx.createRadialGradient(mx,my,0, mx,my,28);
+      glow.addColorStop(0, COLORS[colorIdx%COLORS.length]);
+      glow.addColorStop(1,'transparent');
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(mx,my,28,0,Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    requestAnimationFrame(loop);
+  }
+  loop();
 })();
 </script>
 </body>
