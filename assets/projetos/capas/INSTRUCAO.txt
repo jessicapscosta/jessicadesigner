@@ -1,0 +1,13 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CAPAS DOS PROJETOS — Como trocar
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Coloque as capas com os nomes:
+  capa1.jpg → MOBE EDUC (card grande)
+  capa2.jpg → INTERATIVE EVENTOS
+  capa3.jpg → INOVE TOPOGRAFIA
+  capa4.jpg → MULHER NÃO SE CALE
+  capa5.jpg → MAIS MUNDO MENOS TELA
+  capa6.jpg → 4 ARTES PAPELARIA
+  capa7.jpg → JUNTAR BLOCOS GAME
+
+Formatos aceitos: JPG ou PNG

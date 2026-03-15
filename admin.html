@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Jéssica Pereira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET ─── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:#08000F;color:#F2EAFF;font-family:'DM Sans',sans-serif;overflow-x:hidden;min-height:100vh}
+img{max-width:100%;display:block}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+
+/* ─── VARS (mesmo do index) ─── */
+:root{
+  --pk:#FF1A6C;--pk2:#FF5FA0;
+  --pv:#7B1FFF;--pv2:#A96BFF;
+  --pk-gl:rgba(255,26,108,.38);--pv-gl:rgba(123,31,255,.38);
+  --bg:#08000F;--bg2:#110020;--bg3:#1A0030;
+  --off:#F2EAFF;--mu:rgba(242,234,255,.44);
+  --bd:rgba(255,255,255,.07);--sf:rgba(255,255,255,.04);
+  --green:#2ECC71;--red:#E74C3C;--amber:#F5A623;
+  --sidebar:224px;
+}
+
+/* ─── LOGIN ─── */
+#login-screen{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+}
+.login-card{
+  background:var(--bg2);border:1px solid var(--bd);
+  border-radius:28px;padding:52px 48px;width:100%;max-width:420px;
+  position:relative;overflow:hidden;
+}
+.login-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(255,26,108,.1),transparent);
+  pointer-events:none;
+}
+.login-gem{width:11px;height:11px;background:var(--pk);transform:rotate(45deg);
+  display:inline-block;margin-right:10px;vertical-align:middle;flex-shrink:0}
+.login-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;
+  letter-spacing:-.5px;margin-bottom:32px;display:flex;align-items:center;position:relative}
+.login-title{font-family:'Syne',sans-serif;font-weight:800;font-size:30px;
+  letter-spacing:-1px;line-height:1.1;margin-bottom:8px;position:relative}
+.login-sub{color:var(--mu);font-size:14px;margin-bottom:36px;position:relative}
+.login-label{font-size:13px;font-weight:600;color:var(--mu);display:block;margin-bottom:8px;position:relative}
+.login-input{
+  width:100%;background:var(--sf);border:1.5px solid var(--bd);
+  border-radius:12px;padding:14px 18px;font-family:'DM Sans',sans-serif;
+  font-size:15px;color:var(--off);outline:none;transition:border-color .2s;
+  margin-bottom:18px;position:relative;
+}
+.login-input:focus{border-color:var(--pk)}
+.login-input::placeholder{color:var(--mu)}
+.login-btn{
+  width:100%;background:var(--pk);color:#fff;border:none;
+  padding:15px;border-radius:12px;font-family:'Syne',sans-serif;
+  font-weight:700;font-size:15px;transition:all .25s ease;position:relative;
+}
+.login-btn:hover{background:#d90050;transform:translateY(-2px);box-shadow:0 12px 36px var(--pk-gl)}
+.login-btn:disabled{opacity:.5;pointer-events:none}
+.login-err{color:#FF6B6B;font-size:13px;margin-top:14px;display:none;
+  background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.2);
+  border-radius:8px;padding:10px 14px;position:relative}
+
+/* ─── APP LAYOUT ─── */
+#app{display:none;min-height:100vh;flex-direction:row}
+
+/* ─── SIDEBAR ─── */
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;width:var(--sidebar);
+  background:var(--bg2);border-right:1px solid var(--bd);
+  display:flex;flex-direction:column;z-index:200;overflow-y:auto;
+}
+.sb-logo{
+  padding:28px 22px 20px;border-bottom:1px solid var(--bd);
+  font-family:'Syne',sans-serif;font-weight:800;font-size:17px;
+  letter-spacing:-.4px;display:flex;align-items:center;gap:9px;flex-shrink:0;
+}
+.sb-gem{width:10px;height:10px;background:var(--pk);transform:rotate(45deg);flex-shrink:0}
+.sb-section-label{
+  padding:18px 22px 7px;font-size:10px;font-weight:700;letter-spacing:2.5px;
+  text-transform:uppercase;color:rgba(242,234,255,.25);
+}
+.sb-nav{list-style:none;padding:0 10px;flex:1}
+.sb-item{margin-bottom:1px}
+.sb-link{
+  display:flex;align-items:center;gap:10px;padding:9px 13px;
+  border-radius:9px;font-size:13px;font-weight:500;color:var(--mu);
+  transition:all .18s ease;cursor:pointer;border:none;background:none;width:100%;text-align:left;
+}
+.sb-link svg{width:15px;height:15px;flex-shrink:0;opacity:.65}
+.sb-link:hover{background:var(--sf);color:var(--off)}
+.sb-link:hover svg{opacity:1}
+.sb-link.active{background:rgba(255,26,108,.11);color:var(--pk);border:1px solid rgba(255,26,108,.16)}
+.sb-link.active svg{opacity:1}
+.sb-bottom{padding:14px 10px;border-top:1px solid var(--bd);flex-shrink:0}
+.sb-user{
+  display:flex;align-items:center;gap:9px;padding:9px 13px;
+  border-radius:9px;background:var(--sf);margin-bottom:6px;
+}
+.sb-avatar{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--pk),var(--pv));
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-weight:800;font-size:11px;
+}
+.sb-uname{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-uemail{font-size:10px;color:var(--mu);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-action-btn{
+  display:flex;align-items:center;gap:9px;width:100%;padding:8px 13px;
+  border-radius:9px;font-size:12px;font-weight:500;color:var(--mu);
+  transition:all .18s;border:none;background:none;cursor:pointer;
+}
+.sb-action-btn:hover{background:var(--sf);color:var(--off)}
+.sb-action-btn svg{width:14px;height:14px;flex-shrink:0}
+
+/* ─── MAIN ─── */
+.main{margin-left:var(--sidebar);min-height:100vh;display:flex;flex-direction:column;flex:1}
+
+/* ─── TOPBAR ─── */
+.topbar{
+  padding:18px 32px;border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(8,0,15,.88);backdrop-filter:blur(20px);
+  position:sticky;top:0;z-index:100;
+}
+.topbar-title{font-family:'Syne',sans-serif;font-weight:800;font-size:19px;letter-spacing:-.5px}
+.topbar-sub{font-size:12px;color:var(--mu);margin-top:2px}
+.topbar-actions{display:flex;align-items:center;gap:10px}
+.btn-save{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--pk);color:#fff;border:none;
+  padding:10px 22px;border-radius:100px;font-weight:700;font-size:13px;
+  transition:all .25s ease;
+}
+.btn-save:hover{background:#d90050;transform:translateY(-2px);box-shadow:0 10px 28px var(--pk-gl)}
+.btn-save:disabled{opacity:.45;pointer-events:none}
+.btn-save svg{width:13px;height:13px}
+.btn-sec{
+  display:inline-flex;align-items:center;gap:7px;
+  border:1.5px solid var(--bd);color:var(--off);background:var(--sf);
+  padding:10px 18px;border-radius:100px;font-weight:500;font-size:13px;
+  transition:all .2s ease;
+}
+.btn-sec:hover{border-color:var(--pv);color:var(--pv2)}
+.btn-sec svg{width:13px;height:13px}
+
+/* ─── CONTENT ─── */
+.content{padding:32px;flex:1}
+.section-panel{display:none}
+.section-panel.active{display:block}
+
+/* ─── CARDS ─── */
+.panel-card{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:18px;
+  padding:26px 28px;margin-bottom:20px;
+}
+.panel-card-title{
+  font-family:'Syne',sans-serif;font-weight:700;font-size:14px;
+  margin-bottom:18px;padding-bottom:13px;border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;gap:9px;
+}
+.panel-card-title svg{width:16px;height:16px;color:var(--pk);flex-shrink:0}
+
+/* ─── FORMS ─── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.form-field{display:flex;flex-direction:column;gap:5px}
+.form-field.full{grid-column:1/-1}
+.field-label{font-size:11px;font-weight:600;color:var(--mu);letter-spacing:.3px;text-transform:uppercase}
+.field-input{
+  background:var(--sf);border:1.5px solid var(--bd);
+  border-radius:10px;padding:11px 14px;font-family:'DM Sans',sans-serif;
+  font-size:14px;color:var(--off);outline:none;transition:border-color .2s;
+}
+.field-input:focus{border-color:var(--pk)}
+.field-input::placeholder{color:rgba(242,234,255,.22)}
+.field-input option{background:#1A0030;color:#F2EAFF}
+.field-textarea{min-height:90px;resize:vertical}
+.divider{height:1px;background:var(--bd);margin:20px 0}
+
+/* ─── UPLOAD ─── */
+.upload-area{
+  border:2px dashed var(--bd);border-radius:12px;padding:24px;
+  text-align:center;transition:all .3s;cursor:pointer;position:relative;background:var(--sf);
+}
+.upload-area:hover,.upload-area.drag{border-color:var(--pk);background:rgba(255,26,108,.04)}
+.upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{width:36px;height:36px;border-radius:9px;
+  background:rgba(255,26,108,.1);border:1px solid rgba(255,26,108,.18);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+.upload-icon svg{width:18px;height:18px;color:var(--pk)}
+.upload-txt{font-size:13px;font-weight:600;color:var(--off);margin-bottom:3px}
+.upload-sub{font-size:11px;color:var(--mu)}
+.upload-preview{margin-top:14px;border-radius:8px;overflow:hidden;border:1px solid var(--bd);display:none;max-height:180px}
+.upload-preview img{width:100%;height:180px;object-fit:cover}
+.upload-status{font-size:12px;font-weight:600;margin-top:8px;display:none;padding:6px 10px;border-radius:7px}
+.upload-status.ok{color:var(--green);background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.18)}
+.upload-status.loading{color:var(--amber);background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.18)}
+.upload-status.err{color:var(--red);background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.18)}
+.upload-preview-url{font-size:11px;color:var(--mu);margin-top:6px;word-break:break-all;
+  background:rgba(0,0,0,.25);padding:5px 9px;border-radius:5px;display:none}
+
+/* ─── IMAGE HISTORY ─── */
+.img-history{background:var(--bg2);border:1px solid var(--bd);border-radius:18px;padding:22px 24px;margin-bottom:20px}
+.img-history-title{font-size:11px;font-weight:700;color:var(--mu);letter-spacing:.3px;text-transform:uppercase;margin-bottom:12px}
+.img-history-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:7px}
+.img-hist-item{aspect-ratio:1;border-radius:7px;overflow:hidden;cursor:pointer;
+  border:1.5px solid transparent;transition:all .18s;background:var(--sf)}
+.img-hist-item:hover{border-color:var(--pk);transform:scale(1.06)}
+.img-hist-item img{width:100%;height:100%;object-fit:cover}
+.img-hist-empty{font-size:12px;color:rgba(242,234,255,.2);text-align:center;padding:14px}
+
+/* ─── CHIPS ─── */
+.chips-editor{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
+.chip-item{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgba(255,26,108,.09);border:1px solid rgba(255,26,108,.18);
+  color:var(--pk2);padding:4px 11px;border-radius:100px;font-size:12px;font-weight:500;
+}
+.chip-del{
+  width:15px;height:15px;border-radius:50%;background:rgba(255,26,108,.2);
+  border:none;color:var(--pk);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:10px;transition:all .15s;flex-shrink:0;padding:0;line-height:1;
+}
+.chip-del:hover{background:var(--pk);color:#fff}
+.chip-add{
+  display:inline-flex;align-items:center;gap:5px;
+  border:1.5px dashed var(--bd);color:var(--mu);padding:4px 11px;
+  border-radius:100px;font-size:12px;cursor:pointer;transition:all .18s;background:none;
+}
+.chip-add:hover{border-color:var(--pk);color:var(--pk)}
+.chip-input{
+  background:var(--sf);border:1.5px solid var(--pk);border-radius:100px;
+  padding:4px 12px;font-size:12px;color:var(--off);outline:none;width:130px;
+}
+
+/* ─── REP LIST ─── */
+.rep-list{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+.rep-item{background:var(--bg3);border:1px solid var(--bd);border-radius:12px;padding:16px 18px;position:relative}
+.rep-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.rep-item-label{font-family:'Syne',sans-serif;font-weight:700;font-size:12px;
+  color:var(--mu);display:flex;align-items:center;gap:7px}
+.rep-num{
+  width:20px;height:20px;border-radius:5px;
+  background:rgba(255,26,108,.1);border:1px solid rgba(255,26,108,.18);
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;color:var(--pk);font-weight:800;
+}
+.rep-item-actions{display:flex;gap:5px}
+.rep-btn{
+  width:28px;height:28px;border-radius:7px;border:1px solid var(--bd);
+  background:var(--sf);color:var(--mu);display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .18s;flex-shrink:0;
+}
+.rep-btn svg{width:12px;height:12px}
+.rep-btn:hover{border-color:var(--pk);color:var(--pk)}
+.rep-btn.del:hover{border-color:var(--red);color:var(--red)}
+.rep-add-btn{
+  width:100%;padding:11px;border-radius:10px;border:2px dashed var(--bd);
+  background:none;color:var(--mu);font-family:'DM Sans',sans-serif;font-size:13px;
+  font-weight:600;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.rep-add-btn:hover{border-color:var(--pk);color:var(--pk)}
+.rep-add-btn svg{width:14px;height:14px}
+
+/* ─── TOAST ─── */
+#toast{
+  position:fixed;bottom:24px;right:24px;z-index:9999;
+  background:var(--bg2);border:1px solid var(--bd);border-radius:13px;
+  padding:13px 18px;display:flex;align-items:center;gap:10px;
+  font-size:14px;font-weight:500;box-shadow:0 18px 50px rgba(0,0,0,.4);
+  transform:translateY(120%);opacity:0;transition:all .32s ease;max-width:340px;
+}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.ok{border-color:rgba(46,204,113,.28);background:rgba(46,204,113,.05)}
+#toast.err{border-color:rgba(231,76,60,.28);background:rgba(231,76,60,.05)}
+.toast-ic{width:18px;height:18px;flex-shrink:0}
+#toast.ok .toast-ic{color:var(--green)}
+#toast.err .toast-ic{color:var(--red)}
+
+/* ─── CONFIRM ─── */
+#confirm-overlay{
+  position:fixed;inset:0;z-index:8000;background:rgba(0,0,0,.6);
+  backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;
+}
+#confirm-overlay.show{display:flex}
+.confirm-card{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:18px;
+  padding:34px 38px;max-width:360px;text-align:center;
+}
+.confirm-title{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;margin-bottom:8px}
+.confirm-sub{color:var(--mu);font-size:14px;line-height:1.65;margin-bottom:26px}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
+.confirm-yes{background:var(--red);color:#fff;border:none;padding:10px 24px;
+  border-radius:100px;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s}
+.confirm-yes:hover{background:#c0392b}
+.confirm-no{background:var(--sf);color:var(--off);border:1.5px solid var(--bd);padding:10px 24px;
+  border-radius:100px;font-weight:500;font-size:13px;cursor:pointer;transition:all .2s}
+.confirm-no:hover{border-color:var(--pv);color:var(--pv2)}
+
+/* ─── LOADING ─── */
+#loading{
+  position:fixed;inset:0;z-index:7000;background:rgba(8,0,15,.65);
+  backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:14px;
+}
+#loading.show{display:flex}
+.spin{width:36px;height:36px;border:3px solid var(--bd);border-top-color:var(--pk);
+  border-radius:50%;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--mu)}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.1)}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loading"><div class="spin"></div><div class="loading-txt" id="loading-txt">Carregando...</div></div>
+
+<!-- TOAST -->
+<div id="toast">
+  <svg class="toast-ic" id="tic-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+  <svg class="toast-ic" id="tic-err" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:none"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+  <span id="toast-msg"></span>
+</div>
+
+<!-- CONFIRM -->
+<div id="confirm-overlay">
+  <div class="confirm-card">
+    <div class="confirm-title" id="confirm-title">Tem certeza?</div>
+    <p class="confirm-sub" id="confirm-sub">Esta ação não pode ser desfeita.</p>
+    <div class="confirm-btns">
+      <button class="confirm-no" onclick="closeConfirm()">Cancelar</button>
+      <button class="confirm-yes" id="confirm-yes-btn">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo"><span class="login-gem"></span>JP.</div>
+    <div class="login-title">Área<br><span style="background:linear-gradient(135deg,var(--pk),var(--pv2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Administrativa</span></div>
+    <p class="login-sub">Acesso restrito à administradora do site.</p>
+    <label class="login-label">E-mail</label>
+    <input class="login-input" id="li-email" type="email" placeholder="admin@email.com" autocomplete="email">
+    <label class="login-label">Senha</label>
+    <input class="login-input" id="li-pass" type="password" placeholder="••••••••" autocomplete="current-password">
+    <button class="login-btn" id="li-btn" onclick="doLogin()"><span id="li-btn-txt">Entrar</span></button>
+    <div class="login-err" id="li-err"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-logo"><div class="sb-gem"></div>JP. Admin</div>
+    <div class="sb-section-label">Conteúdo do site</div>
+    <ul class="sb-nav">
+      <li class="sb-item"><button class="sb-link active" data-sec="hero" onclick="showSection('hero')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>Hero
+      </button></li>
+      <li class="sb-item"><button class="sb-link" data-sec="sobre" onclick="showSection('sobre')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Sobre
+      </button></li>
+      <li class="sb-item"><button class="sb-link" data-sec="servicos" onclick="showSection('servicos')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>Serviços
+      </button></li>
+      <li class="sb-item"><button class="sb-link" data-sec="projetos" onclick="showSection('projetos')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Projetos
+      </button></li>
+      <li class="sb-item"><button class="sb-link" data-sec="valores" onclick="showSection('valores')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Valores & Stats
+      </button></li>
+      <li class="sb-item"><button class="sb-link" data-sec="depoimentos" onclick="showSection('depoimentos')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Depoimentos
+      </button></li>
+      <li class="sb-item"><button class="sb-link" data-sec="faq" onclick="showSection('faq')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>FAQ
+      </button></li>
+      <li class="sb-item"><button class="sb-link" data-sec="clientes" onclick="showSection('clientes')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clientes
+      </button></li>
+      <li class="sb-item"><button class="sb-link" data-sec="footer" onclick="showSection('footer')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="14" width="18" height="8" rx="2"/><path d="M3 10h18M3 6h18"/></svg>Footer
+      </button></li>
+      <li class="sb-item"><button class="sb-link" data-sec="briefing" onclick="showSection('briefing')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Briefing
+      </button></li>
+    </ul>
+    <div class="sb-bottom">
+      <div class="sb-user">
+        <div class="sb-avatar" id="sb-av">A</div>
+        <div style="overflow:hidden;min-width:0">
+          <div class="sb-uname" id="sb-name">Admin</div>
+          <div class="sb-uemail" id="sb-email">—</div>
+        </div>
+      </div>
+      <button class="sb-action-btn" onclick="window.open('index.html','_blank')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15,3 21,3 21,9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Ver site
+      </button>
+      <button class="sb-action-btn" onclick="doLogout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sair
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="topbar-title" id="tb-title">Hero</div>
+        <div class="topbar-sub" id="tb-sub">Edite textos e imagens da seção hero</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-sec" onclick="loadSection()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1,4 1,10 7,10"/><path d="M3.51 15a9 9 0 1 0 .49-4.45"/></svg>
+          Recarregar
+        </button>
+        <button class="btn-save" id="save-btn" onclick="saveSection()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17,21 17,13 7,13"/><polyline points="7,3 7,8 15,8"/></svg>
+          Salvar alterações
+        </button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ══ HERO ══ -->
+      <div id="sec-hero" class="section-panel active">
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h8m-8 6h16"/></svg>
+            Textos do Hero
+          </div>
+          <div class="form-grid">
+            <div class="form-field"><label class="field-label">Badge (pílula animada)</label>
+              <input class="field-input" id="hero-badge" type="text" placeholder="Disponível para novos projetos"></div>
+            <div class="form-field"><label class="field-label">Título — Linha 1</label>
+              <input class="field-input" id="hero-l1" type="text" placeholder="Design"></div>
+            <div class="form-field"><label class="field-label">Título — Linha 2 <span style="color:var(--pk)">•</span> com gradiente</label>
+              <input class="field-input" id="hero-l2" type="text" placeholder="que faz"></div>
+            <div class="form-field"><label class="field-label">Título — Linha 3</label>
+              <input class="field-input" id="hero-l3" type="text" placeholder="marcas"></div>
+            <div class="form-field full"><label class="field-label">Subtítulo / descrição (aceita &lt;strong&gt;)</label>
+              <textarea class="field-input field-textarea" id="hero-desc" placeholder="Crio identidades visuais..."></textarea></div>
+            <div class="form-field"><label class="field-label">Botão primário — Texto</label>
+              <input class="field-input" id="hero-btn1-txt" type="text" placeholder="Ver meu trabalho"></div>
+            <div class="form-field"><label class="field-label">Botão primário — Link (âncora ou URL)</label>
+              <input class="field-input" id="hero-btn1-link" type="text" placeholder="#projetos"></div>
+            <div class="form-field"><label class="field-label">Botão secundário — Texto</label>
+              <input class="field-input" id="hero-btn2-txt" type="text" placeholder="Preencher Briefing"></div>
+            <div class="form-field"><label class="field-label">Botão secundário — Link</label>
+              <input class="field-input" id="hero-btn2-link" type="text" placeholder="#contato"></div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+            Imagem / Chips do Hero
+          </div>
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="field-label">Imagem de fundo / foto (URL ou upload)</label>
+              <div class="upload-area" id="ua-hero">
+                <input type="file" id="f-hero" accept="image/*" onchange="handleUpload('hero',this)">
+                <div class="upload-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg></div>
+                <div class="upload-txt">Clique ou arraste</div>
+                <div class="upload-sub">PNG, JPG, WEBP — 900×1200px</div>
+                <div class="upload-preview" id="uprev-hero"><img id="uprevimg-hero" src="" alt=""></div>
+                <div class="upload-status" id="ust-hero"></div>
+              </div>
+              <input class="field-input" id="hero-img-url" type="text" placeholder="Ou cole a URL aqui" style="margin-top:8px">
+              <div class="upload-preview-url" id="uprevurl-hero"></div>
+            </div>
+            <div class="form-field">
+              <label class="field-label">Chips flutuantes</label>
+              <div style="background:var(--sf);border:1.5px solid var(--bd);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:12px">
+                <div>
+                  <div class="field-label" style="margin-bottom:5px">Chip inferior esq.</div>
+                  <input class="field-input" id="hero-chip1" type="text" placeholder="Designer Gráfico · Brasília">
+                </div>
+                <div>
+                  <div class="field-label" style="margin-bottom:5px">Chip superior dir.</div>
+                  <input class="field-input" id="hero-chip2" type="text" placeholder="Disponível">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Stats abaixo do Hero (3 números)
+          </div>
+          <div id="hero-stats-wrap"></div>
+        </div>
+
+        <div class="img-history">
+          <div class="img-history-title">Histórico de imagens</div>
+          <div class="img-history-grid" id="hist-hero"></div>
+        </div>
+      </div>
+
+      <!-- ══ SOBRE ══ -->
+      <div id="sec-sobre" class="section-panel">
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            Textos
+          </div>
+          <div class="form-grid">
+            <div class="form-field"><label class="field-label">Tag (rótulo)</label>
+              <input class="field-input" id="sobre-tag" type="text" placeholder="Sobre mim"></div>
+            <div class="form-field"><label class="field-label">Título</label>
+              <input class="field-input" id="sobre-titulo" type="text" placeholder="Design com propósito"></div>
+            <div class="form-field full"><label class="field-label">Bio / descrição (aceita &lt;strong&gt;)</label>
+              <textarea class="field-input field-textarea" id="sobre-desc" placeholder="Sou designer gráfica..."></textarea></div>
+            <div class="form-field full"><label class="field-label">Badge grande (card com gradiente)</label>
+              <input class="field-input" id="sobre-badge" type="text" placeholder="Design que transforma marcas em experiências"></div>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,11 12,14 22,4"/></svg>
+            Pilares / Valores (cards laterais direita)
+          </div>
+          <div class="rep-list" id="sobre-vals"></div>
+          <button class="rep-add-btn" onclick="addItem('sobre-vals',sobreValTpl)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar valor
+          </button>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            Skills / Chips (linha de tags)
+          </div>
+          <p style="font-size:12px;color:var(--mu);margin-bottom:12px">Clique em × para remover. Clique em + Adicionar para incluir nova skill.</p>
+          <div class="chips-editor" id="skills-chips"></div>
+        </div>
+      </div>
+
+      <!-- ══ SERVIÇOS ══ -->
+      <div id="sec-servicos" class="section-panel">
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Cards de Serviços
+          </div>
+          <p style="font-size:12px;color:var(--mu);margin-bottom:16px">O número do card é gerado automaticamente pela ordem dos itens.</p>
+          <div class="rep-list" id="servicos-list"></div>
+          <button class="rep-add-btn" onclick="addItem('servicos-list',servicoTpl)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar serviço
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ PROJETOS ══ -->
+      <div id="sec-projetos" class="section-panel">
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Projetos do Portfólio
+          </div>
+          <p style="font-size:12px;color:var(--mu);margin-bottom:16px">A capa pode ser URL do Behance CDN ou upload via Cloudinary.</p>
+          <div class="rep-list" id="projetos-list"></div>
+          <button class="rep-add-btn" onclick="addItem('projetos-list',projetoTpl)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar projeto
+          </button>
+        </div>
+        <div class="img-history">
+          <div class="img-history-title">Histórico de capas</div>
+          <div class="img-history-grid" id="hist-projetos"></div>
+        </div>
+      </div>
+
+      <!-- ══ VALORES ══ -->
+      <div id="sec-valores" class="section-panel">
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            Textos da Seção Valores
+          </div>
+          <div class="form-grid">
+            <div class="form-field"><label class="field-label">Tag</label>
+              <input class="field-input" id="vals-tag" type="text" placeholder="Meus valores"></div>
+            <div class="form-field"><label class="field-label">Título linha 1</label>
+              <input class="field-input" id="vals-l1" type="text" placeholder="O que guia"></div>
+            <div class="form-field"><label class="field-label">Título linha 2 <span style="color:var(--pk)">•</span> cor pk</label>
+              <input class="field-input" id="vals-l2" type="text" placeholder="meu trabalho"></div>
+            <div class="form-field"><label class="field-label">Descrição</label>
+              <textarea class="field-input field-textarea" id="vals-desc" style="min-height:70px"></textarea></div>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,11 12,14 22,4"/></svg>
+            Itens de Valor (lista esquerda)
+          </div>
+          <div class="rep-list" id="vals-items"></div>
+          <button class="rep-add-btn" onclick="addItem('vals-items',valItemTpl)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar item
+          </button>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+            Stats — Números em Destaque
+          </div>
+          <div class="form-grid" style="margin-bottom:16px">
+            <div class="form-field"><label class="field-label">Card grande — Número</label>
+              <input class="field-input" id="stat-big-n" type="text" placeholder="+100"></div>
+            <div class="form-field"><label class="field-label">Card grande — Label</label>
+              <input class="field-input" id="stat-big-l" type="text" placeholder="Projetos entregues"></div>
+          </div>
+          <div class="divider" style="margin:12px 0"></div>
+          <p style="font-size:11px;color:var(--mu);margin-bottom:12px;text-transform:uppercase;letter-spacing:.3px;font-weight:600">4 cards menores:</p>
+          <div class="form-grid" id="small-stats-wrap"></div>
+        </div>
+      </div>
+
+      <!-- ══ DEPOIMENTOS ══ -->
+      <div id="sec-depoimentos" class="section-panel">
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Depoimentos de Clientes
+          </div>
+          <div class="rep-list" id="depoimentos-list"></div>
+          <button class="rep-add-btn" onclick="addItem('depoimentos-list',depoimentoTpl)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar depoimento
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ FAQ ══ -->
+      <div id="sec-faq" class="section-panel">
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+            Perguntas Frequentes
+          </div>
+          <div class="rep-list" id="faq-list"></div>
+          <button class="rep-add-btn" onclick="addItem('faq-list',faqTpl)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar pergunta
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ CLIENTES ══ -->
+      <div id="sec-clientes" class="section-panel">
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Clientes / Marcas na Marquee
+          </div>
+          <p style="font-size:12px;color:var(--mu);margin-bottom:16px">Cada item vira um slot na faixa animada. O nome aparece em caps bold.</p>
+          <div class="rep-list" id="clientes-list"></div>
+          <button class="rep-add-btn" onclick="addItem('clientes-list',clienteTpl)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar cliente
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ FOOTER ══ -->
+      <div id="sec-footer" class="section-panel">
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="14" width="18" height="8" rx="2"/><path d="M3 10h18M3 6h18"/></svg>
+            Informações do Rodapé
+          </div>
+          <div class="form-grid">
+            <div class="form-field full"><label class="field-label">Bio / tagline</label>
+              <textarea class="field-input field-textarea" id="ft-bio" style="min-height:70px" placeholder="Designer Gráfico apaixonada..."></textarea></div>
+            <div class="form-field"><label class="field-label">Instagram — URL</label>
+              <input class="field-input" id="ft-insta" type="text" placeholder="https://instagram.com/..."></div>
+            <div class="form-field"><label class="field-label">Behance — URL</label>
+              <input class="field-input" id="ft-behance" type="text" placeholder="https://behance.net/..."></div>
+            <div class="form-field"><label class="field-label">LinkedIn — URL</label>
+              <input class="field-input" id="ft-linkedin" type="text" placeholder="https://linkedin.com/in/..."></div>
+            <div class="form-field"><label class="field-label">WhatsApp (com DDI, ex: 5561...)</label>
+              <input class="field-input" id="ft-wpp" type="text" placeholder="5561996815902"></div>
+            <div class="form-field"><label class="field-label">E-mail</label>
+              <input class="field-input" id="ft-email" type="text" placeholder="contato@email.com"></div>
+            <div class="form-field full"><label class="field-label">Texto de copyright</label>
+              <input class="field-input" id="ft-copy" type="text" placeholder="© 2026 Jéssica Pereira. Todos os direitos reservados."></div>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            Colunas do Footer
+          </div>
+          <div class="form-grid">
+            <div class="form-field full"><label class="field-label">Coluna "Serviços" — separados por vírgula</label>
+              <input class="field-input" id="ft-col-sv" type="text" placeholder="Identidade Visual, Social Media, UI/UX Design..."></div>
+            <div class="form-field full"><label class="field-label">Coluna "Links" — separados por vírgula</label>
+              <input class="field-input" id="ft-col-lk" type="text" placeholder="Portfólio, Briefing, Blog, Contato"></div>
+            <div class="form-field full"><label class="field-label">Coluna "Contato" — itens separados por vírgula</label>
+              <input class="field-input" id="ft-col-ct" type="text" placeholder="Brasília, DF, Brasil, Atendimento remoto"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ BRIEFING ══ -->
+      <div id="sec-briefing" class="section-panel">
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+            Cabeçalho do Formulário
+          </div>
+          <div class="form-grid">
+            <div class="form-field"><label class="field-label">Título</label>
+              <input class="field-input" id="bf-titulo" type="text" placeholder="Vamos criar algo incrível juntas?"></div>
+            <div class="form-field"><label class="field-label">Subtítulo</label>
+              <input class="field-input" id="bf-sub" type="text" placeholder="Preencha o briefing abaixo..."></div>
+            <div class="form-field"><label class="field-label">Número WhatsApp p/ envio</label>
+              <input class="field-input" id="bf-wpp" type="text" placeholder="5561996815902"></div>
+          </div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Categorias de Serviço (Passo 1)
+          </div>
+          <p style="font-size:12px;color:var(--mu);margin-bottom:14px">Opções de tipo de serviço que o cliente seleciona no briefing.</p>
+          <div class="rep-list" id="bf-cats"></div>
+          <button class="rep-add-btn" onclick="addItem('bf-cats',bfCatTpl)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar categoria
+          </button>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/></svg>
+            Opções de Prazo
+          </div>
+          <div class="chips-editor" id="bf-prazo-chips"></div>
+        </div>
+        <div class="panel-card">
+          <div class="panel-card-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Opções de Orçamento
+          </div>
+          <div class="chips-editor" id="bf-orc-chips"></div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+</div><!-- /app -->
+
+<script type="module">
+import { initializeApp }                   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+                                            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc }
+                                            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ══════════════════════════════════════════
+   🔧 CONFIGURAÇÃO — preencha com suas credenciais
+══════════════════════════════════════════ */
+const FB = {
+  apiKey:            "SUA_API_KEY",
+  authDomain:        "SEU_PROJETO.firebaseapp.com",
+  projectId:         "SEU_PROJETO_ID",
+  storageBucket:     "SEU_PROJETO.appspot.com",
+  messagingSenderId: "SEU_SENDER_ID",
+  appId:             "SEU_APP_ID"
+};
+const CLOUD = {
+  cloudName:    "SEU_CLOUD_NAME",
+  uploadPreset: "SEU_UPLOAD_PRESET"   // unsigned preset
+};
+/* ══════════════════════════════════════════ */
+
+const app  = initializeApp(FB);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* globals */
+window._db    = db;
+window._CLOUD = CLOUD;
+window._pendingUrls = {};
+
+/* ─── CACHE ─── */
+const CK = 'jp_admin_v1';
+const getCache = () => { try{ return JSON.parse(localStorage.getItem(CK)||'{}') }catch(e){return {}} };
+const setCache = (k,v) => { const c=getCache(); c[k]=v; localStorage.setItem(CK,JSON.stringify(c)); };
+
+/* ─── AUTH ─── */
+onAuthStateChanged(auth, user => {
+  if(user){
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('sb-av').textContent    = user.email[0].toUpperCase();
+    document.getElementById('sb-name').textContent  = user.displayName || 'Admin';
+    document.getElementById('sb-email').textContent = user.email;
+    initAdmin();
+  } else {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+  }
+});
+
+window.doLogin = async () => {
+  const email = document.getElementById('li-email').value.trim();
+  const pass  = document.getElementById('li-pass').value;
+  const btn   = document.getElementById('li-btn');
+  const err   = document.getElementById('li-err');
+  err.style.display = 'none';
+  btn.disabled = true;
+  document.getElementById('li-btn-txt').textContent = 'Entrando...';
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    err.textContent = (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password')
+      ? 'E-mail ou senha incorretos.' : 'Erro: ' + e.message;
+    err.style.display = 'block';
+    btn.disabled = false;
+    document.getElementById('li-btn-txt').textContent = 'Entrar';
+  }
+};
+window.doLogout = () => signOut(auth);
+document.getElementById('li-email').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('li-pass').focus(); });
+document.getElementById('li-pass').addEventListener('keydown',  e => { if(e.key==='Enter') window.doLogin(); });
+
+/* ─── SECTIONS META ─── */
+const SMETA = {
+  hero:        { title:'Hero',           sub:'Textos, imagens e stats do hero' },
+  sobre:       { title:'Sobre',          sub:'Bio, valores e skills da seção sobre' },
+  servicos:    { title:'Serviços',       sub:'Cards de serviços oferecidos' },
+  projetos:    { title:'Projetos',       sub:'Portfólio — cards de projetos' },
+  valores:     { title:'Valores & Stats',sub:'Itens de valor e números em destaque' },
+  depoimentos: { title:'Depoimentos',    sub:'Avaliações de clientes' },
+  faq:         { title:'FAQ',            sub:'Perguntas e respostas frequentes' },
+  clientes:    { title:'Clientes',       sub:'Marcas na faixa animada' },
+  footer:      { title:'Footer',         sub:'Rodapé — links, bio e colunas' },
+  briefing:    { title:'Briefing',       sub:'Formulário de briefing — categorias e opções' }
+};
+
+window._sec = 'hero';
+
+window.showSection = (sec) => {
+  document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+  document.getElementById('sec-'+sec).classList.add('active');
+  document.querySelector(`.sb-link[data-sec="${sec}"]`).classList.add('active');
+  document.getElementById('tb-title').textContent = SMETA[sec].title;
+  document.getElementById('tb-sub').textContent   = SMETA[sec].sub;
+  window._sec = sec;
+  loadSection();
+};
+
+window.loadSection = async () => {
+  const sec = window._sec;
+  showLoad('Carregando...');
+  try {
+    const cache = getCache();
+    if(cache[sec]) fillSection(sec, cache[sec]);
+    const snap = await getDoc(doc(db, 'site', sec));
+    const data = snap.exists() ? snap.data() : {};
+    setCache(sec, data);
+    fillSection(sec, data);
+  } catch(e) {
+    toast('Erro ao carregar: '+e.message, 'err');
+  } finally { hideLoad(); }
+};
+
+window.saveSection = async () => {
+  const sec = window._sec;
+  document.getElementById('save-btn').disabled = true;
+  showLoad('Salvando...');
+  try {
+    const data = Object.assign(collectSection(sec), window._pendingUrls);
+    window._pendingUrls = {};
+    await setDoc(doc(db, 'site', sec), data, {merge: true});
+    /* invalida caches */
+    const c = getCache(); delete c[sec]; localStorage.setItem(CK, JSON.stringify(c));
+    localStorage.removeItem('site_cache_v1');
+    toast('Salvo com sucesso!', 'ok');
+  } catch(e) {
+    toast('Erro ao salvar: '+e.message, 'err');
+  } finally {
+    document.getElementById('save-btn').disabled = false;
+    hideLoad();
+  }
+};
+
+/* ─── INIT ─── */
+function initAdmin(){
+  buildHeroStats();
+  buildSmallStats();
+  loadSection();
+  renderHist('hero');
+  renderHist('projetos');
+}
+
+/* ═══════════════════════════════════════════
+   FILL
+═══════════════════════════════════════════ */
+function fillSection(sec, d){
+  if(!d) return;
+  if(sec==='hero'){
+    sv('hero-badge',d.badge); sv('hero-l1',d.l1); sv('hero-l2',d.l2); sv('hero-l3',d.l3);
+    sv('hero-desc',d.desc); sv('hero-btn1-txt',d.btn1_txt); sv('hero-btn1-link',d.btn1_link);
+    sv('hero-btn2-txt',d.btn2_txt); sv('hero-btn2-link',d.btn2_link);
+    sv('hero-img-url',d.img_url); sv('hero-chip1',d.chip1); sv('hero-chip2',d.chip2);
+    if(d.img_url) previewUrl('hero', d.img_url);
+    fillHeroStats(d.stats||[]);
+  }
+  if(sec==='sobre'){
+    sv('sobre-tag',d.tag); sv('sobre-titulo',d.titulo); sv('sobre-desc',d.desc); sv('sobre-badge',d.badge);
+    buildRepList('sobre-vals', d.vals||[], sobreValTpl);
+    buildChips('skills-chips', d.skills||[]);
+  }
+  if(sec==='servicos') buildRepList('servicos-list', d.items||[], servicoTpl);
+  if(sec==='projetos') buildRepList('projetos-list', d.items||[], projetoTpl);
+  if(sec==='valores'){
+    sv('vals-tag',d.tag); sv('vals-l1',d.l1); sv('vals-l2',d.l2); sv('vals-desc',d.desc);
+    buildRepList('vals-items', d.items||[], valItemTpl);
+    sv('stat-big-n',d.stat_big_n); sv('stat-big-l',d.stat_big_l);
+    fillSmallStats(d.small_stats||[]);
+  }
+  if(sec==='depoimentos') buildRepList('depoimentos-list', d.items||[], depoimentoTpl);
+  if(sec==='faq') buildRepList('faq-list', d.items||[], faqTpl);
+  if(sec==='clientes') buildRepList('clientes-list', d.items||[], clienteTpl);
+  if(sec==='footer'){
+    sv('ft-bio',d.bio); sv('ft-insta',d.instagram); sv('ft-behance',d.behance);
+    sv('ft-linkedin',d.linkedin); sv('ft-wpp',d.wpp); sv('ft-email',d.email);
+    sv('ft-copy',d.copyright); sv('ft-col-sv',d.col_sv); sv('ft-col-lk',d.col_lk); sv('ft-col-ct',d.col_ct);
+  }
+  if(sec==='briefing'){
+    sv('bf-titulo',d.titulo); sv('bf-sub',d.sub); sv('bf-wpp',d.wpp_num);
+    buildRepList('bf-cats', d.cats||[], bfCatTpl);
+    buildChips('bf-prazo-chips', d.prazo_opts||[]);
+    buildChips('bf-orc-chips',   d.orcamento_opts||[]);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   COLLECT
+═══════════════════════════════════════════ */
+function collectSection(sec){
+  if(sec==='hero') return {
+    badge:gv('hero-badge'), l1:gv('hero-l1'), l2:gv('hero-l2'), l3:gv('hero-l3'),
+    desc:gv('hero-desc'), btn1_txt:gv('hero-btn1-txt'), btn1_link:gv('hero-btn1-link'),
+    btn2_txt:gv('hero-btn2-txt'), btn2_link:gv('hero-btn2-link'),
+    img_url:gv('hero-img-url'), chip1:gv('hero-chip1'), chip2:gv('hero-chip2'),
+    stats: collectHeroStats()
+  };
+  if(sec==='sobre') return {
+    tag:gv('sobre-tag'), titulo:gv('sobre-titulo'), desc:gv('sobre-desc'), badge:gv('sobre-badge'),
+    vals:  collectRep('sobre-vals',  ['label','sub']),
+    skills:collectChipsList('skills-chips')
+  };
+  if(sec==='servicos') return { items: collectRep('servicos-list', ['titulo','txt']) };
+  if(sec==='projetos') return { items: collectRep('projetos-list', ['cat','nome','img_url','behance','desc']) };
+  if(sec==='valores')  return {
+    tag:gv('vals-tag'), l1:gv('vals-l1'), l2:gv('vals-l2'), desc:gv('vals-desc'),
+    items: collectRep('vals-items', ['num','label','sub']),
+    stat_big_n:gv('stat-big-n'), stat_big_l:gv('stat-big-l'),
+    small_stats: collectSmallStats()
+  };
+  if(sec==='depoimentos') return { items: collectRep('depoimentos-list', ['txt','nome','cargo','estrelas']) };
+  if(sec==='faq')         return { items: collectRep('faq-list', ['pergunta','resposta']) };
+  if(sec==='clientes')    return { items: collectRep('clientes-list', ['nome']) };
+  if(sec==='footer') return {
+    bio:gv('ft-bio'), instagram:gv('ft-insta'), behance:gv('ft-behance'), linkedin:gv('ft-linkedin'),
+    wpp:gv('ft-wpp'), email:gv('ft-email'), copyright:gv('ft-copy'),
+    col_sv:gv('ft-col-sv'), col_lk:gv('ft-col-lk'), col_ct:gv('ft-col-ct')
+  };
+  if(sec==='briefing') return {
+    titulo:gv('bf-titulo'), sub:gv('bf-sub'), wpp_num:gv('bf-wpp'),
+    cats:         collectRep('bf-cats', ['label','sub']),
+    prazo_opts:   collectChipsList('bf-prazo-chips'),
+    orcamento_opts: collectChipsList('bf-orc-chips')
+  };
+  return {};
+}
+
+/* ─── FORM HELPERS ─── */
+const sv = (id,v) => { const e=document.getElementById(id); if(e&&v!==undefined&&v!==null) e.value=v; };
+const gv = (id)   => { const e=document.getElementById(id); return e?e.value.trim():''; };
+const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* ─── HERO STATS ─── */
+function buildHeroStats(){
+  const w = document.getElementById('hero-stats-wrap');
+  w.innerHTML = '<div class="form-grid-3">' + [0,1,2].map(i=>`
+    <div class="form-field"><label class="field-label">Stat ${i+1} — Número</label>
+    <input class="field-input" id="hst-n-${i}" type="text" placeholder="6+"></div>
+    <div class="form-field"><label class="field-label">Stat ${i+1} — Label</label>
+    <input class="field-input" id="hst-l-${i}" type="text" placeholder="Anos de experiência"></div>
+  `).join('') + '</div>';
+}
+function fillHeroStats(a){ a.forEach((s,i)=>{ sv(`hst-n-${i}`,s.n); sv(`hst-l-${i}`,s.l); }); }
+function collectHeroStats(){ return [0,1,2].map(i=>({n:gv(`hst-n-${i}`),l:gv(`hst-l-${i}`)})); }
+
+/* ─── SMALL STATS ─── */
+function buildSmallStats(){
+  const w = document.getElementById('small-stats-wrap');
+  w.innerHTML = [0,1,2,3].map(i=>`
+    <div class="form-field"><label class="field-label">Card ${i+1} — Número</label>
+    <input class="field-input" id="sst-n-${i}" type="text"></div>
+    <div class="form-field"><label class="field-label">Card ${i+1} — Label</label>
+    <input class="field-input" id="sst-l-${i}" type="text"></div>
+  `).join('');
+}
+function fillSmallStats(a){ a.forEach((s,i)=>{ sv(`sst-n-${i}`,s.n); sv(`sst-l-${i}`,s.l); }); }
+function collectSmallStats(){ return [0,1,2,3].map(i=>({n:gv(`sst-n-${i}`),l:gv(`sst-l-${i}`)})); }
+
+/* ═══════════════════════════════════════════
+   TEMPLATES — HTML de cada item da rep list
+═══════════════════════════════════════════ */
+function sobreValTpl(it){
+  return `<div class="form-grid" style="gap:10px">
+    <div class="form-field"><label class="field-label">Título</label>
+    <input class="field-input" name="label" type="text" value="${esc(it.label||'')}" placeholder="Ex: Criatividade com propósito"></div>
+    <div class="form-field"><label class="field-label">Descrição</label>
+    <input class="field-input" name="sub" type="text" value="${esc(it.sub||'')}" placeholder="Breve descrição..."></div>
+  </div>`;
+}
+window.sobreValTpl = sobreValTpl;
+
+function servicoTpl(it){
+  return `<div class="form-grid" style="gap:10px">
+    <div class="form-field"><label class="field-label">Título do serviço</label>
+    <input class="field-input" name="titulo" type="text" value="${esc(it.titulo||'')}" placeholder="Identidade Visual"></div>
+    <div class="form-field"><label class="field-label">Descrição</label>
+    <textarea class="field-input field-textarea" name="txt" style="min-height:65px" placeholder="Logo, paleta, manual...">${esc(it.txt||'')}</textarea></div>
+  </div>`;
+}
+window.servicoTpl = servicoTpl;
+
+function projetoTpl(it, i){
+  return `<div class="form-grid" style="gap:10px">
+    <div class="form-field"><label class="field-label">Categoria</label>
+    <input class="field-input" name="cat" type="text" value="${esc(it.cat||'')}" placeholder="Identidade Visual · Branding"></div>
+    <div class="form-field"><label class="field-label">Nome</label>
+    <input class="field-input" name="nome" type="text" value="${esc(it.nome||'')}" placeholder="ID Visual | MOBE EDUC"></div>
+    <div class="form-field full"><label class="field-label">URL da capa</label>
+    <input class="field-input" name="img_url" type="text" value="${esc(it.img_url||'')}" placeholder="https://...">
+    </div>
+    <div class="form-field"><label class="field-label">Link Behance</label>
+    <input class="field-input" name="behance" type="text" value="${esc(it.behance||'')}" placeholder="https://behance.net/..."></div>
+    <div class="form-field"><label class="field-label">Descrição curta</label>
+    <input class="field-input" name="desc" type="text" value="${esc(it.desc||'')}" placeholder="Resumo do projeto..."></div>
+  </div>
+  <div style="margin-top:10px;display:flex;align-items:center;gap:8px">
+    <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;
+      background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:7px 12px;
+      font-size:11px;font-weight:600;color:var(--mu);transition:all .18s"
+      onmouseover="this.style.borderColor='var(--pk)';this.style.color='var(--pk)'"
+      onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--mu)'">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+      Upload capa
+      <input type="file" accept="image/*" style="display:none" onchange="uploadCapa(this,${i})">
+    </label>
+    <span id="capa-st-${i}" style="font-size:11px;color:var(--mu)"></span>
+  </div>`;
+}
+window.projetoTpl = projetoTpl;
+
+function valItemTpl(it, i){
+  return `<div class="form-grid-3" style="gap:10px">
+    <div class="form-field"><label class="field-label">Número</label>
+    <input class="field-input" name="num" type="text" value="${esc(it.num||String(i+1).padStart(2,'0'))}" placeholder="01"></div>
+    <div class="form-field"><label class="field-label">Título</label>
+    <input class="field-input" name="label" type="text" value="${esc(it.label||'')}" placeholder="Criatividade"></div>
+    <div class="form-field"><label class="field-label">Descrição</label>
+    <input class="field-input" name="sub" type="text" value="${esc(it.sub||'')}" placeholder="Cada marca tem uma história..."></div>
+  </div>`;
+}
+window.valItemTpl = valItemTpl;
+
+function depoimentoTpl(it){
+  const stars = parseInt(it.estrelas)||5;
+  return `<div class="form-grid" style="gap:10px">
+    <div class="form-field full"><label class="field-label">Texto do depoimento</label>
+    <textarea class="field-input field-textarea" name="txt" style="min-height:75px" placeholder="O que o cliente disse...">${esc(it.txt||'')}</textarea></div>
+    <div class="form-field"><label class="field-label">Nome</label>
+    <input class="field-input" name="nome" type="text" value="${esc(it.nome||'')}" placeholder="Maria Eduarda"></div>
+    <div class="form-field"><label class="field-label">Cargo / Empresa</label>
+    <input class="field-input" name="cargo" type="text" value="${esc(it.cargo||'')}" placeholder="Fundadora · MOBE EDUC"></div>
+    <div class="form-field"><label class="field-label">Estrelas</label>
+    <select class="field-input" name="estrelas">
+      ${[5,4,3,2,1].map(n=>`<option value="${n}"${n===stars?' selected':''}>${'★'.repeat(n)}</option>`).join('')}
+    </select></div>
+  </div>`;
+}
+window.depoimentoTpl = depoimentoTpl;
+
+function faqTpl(it){
+  return `<div class="form-grid" style="gap:10px">
+    <div class="form-field full"><label class="field-label">Pergunta</label>
+    <input class="field-input" name="pergunta" type="text" value="${esc(it.pergunta||'')}" placeholder="Quais tipos de clientes você atende?"></div>
+    <div class="form-field full"><label class="field-label">Resposta</label>
+    <textarea class="field-input field-textarea" name="resposta" style="min-height:75px" placeholder="Resposta detalhada...">${esc(it.resposta||'')}</textarea></div>
+  </div>`;
+}
+window.faqTpl = faqTpl;
+
+function clienteTpl(it){
+  return `<div class="form-field">
+    <label class="field-label">Nome do cliente / marca</label>
+    <input class="field-input" name="nome" type="text" value="${esc(it.nome||'')}" placeholder="Ex: MOBE EDUC">
+  </div>`;
+}
+window.clienteTpl = clienteTpl;
+
+function bfCatTpl(it){
+  return `<div class="form-grid" style="gap:10px">
+    <div class="form-field"><label class="field-label">Categoria</label>
+    <input class="field-input" name="label" type="text" value="${esc(it.label||'')}" placeholder="Identidade Visual"></div>
+    <div class="form-field"><label class="field-label">Descrição curta</label>
+    <input class="field-input" name="sub" type="text" value="${esc(it.sub||'')}" placeholder="Logo, manual, branding"></div>
+  </div>`;
+}
+window.bfCatTpl = bfCatTpl;
+
+/* ═══════════════════════════════════════════
+   GENERIC REP LIST ENGINE
+═══════════════════════════════════════════ */
+function buildRepList(containerId, arr, tplFn){
+  const wrap = document.getElementById(containerId);
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  arr.forEach((item,i) => appendRepEl(wrap, item, i, tplFn));
+}
+
+window.addItem = (containerId, tplFn) => {
+  const wrap = document.getElementById(containerId);
+  if(!wrap) return;
+  const i = wrap.querySelectorAll('.rep-item').length;
+  appendRepEl(wrap, {}, i, tplFn);
+};
+
+function appendRepEl(wrap, item, i, tplFn){
+  const div = document.createElement('div');
+  div.className = 'rep-item';
+  div.innerHTML = `
+    <div class="rep-item-header">
+      <div class="rep-item-label"><div class="rep-num">${i+1}</div> Item ${i+1}</div>
+      <div class="rep-item-actions">
+        <button class="rep-btn del" onclick="removeRepItem(this)" title="Remover item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3,6 5,6 21,6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
+      </div>
+    </div>
+    ${tplFn(item, i)}
+  `;
+  wrap.appendChild(div);
+}
+
+window.removeRepItem = (btn) => {
+  confirmAction('Remover item?', 'Exclusão efetiva apenas após Salvar alterações.', () => {
+    const list = btn.closest('.rep-list');
+    btn.closest('.rep-item').remove();
+    /* renumera */
+    if(list) list.querySelectorAll('.rep-item').forEach((el,i)=>{
+      const n = el.querySelector('.rep-num'); if(n) n.textContent = i+1;
+    });
+  });
+};
+
+function collectRep(containerId, fields){
+  return [...document.querySelectorAll(`#${containerId} .rep-item`)].map(el => {
+    const obj = {};
+    fields.forEach(f => { const inp = el.querySelector(`[name="${f}"]`); obj[f] = inp ? inp.value.trim() : ''; });
+    return obj;
+  });
+}
+
+/* ═══════════════════════════════════════════
+   CHIPS ENGINE
+═══════════════════════════════════════════ */
+function buildChips(containerId, arr){
+  const wrap = document.getElementById(containerId);
+  if(!wrap) return;
+  wrap.innerHTML = '';
+  arr.forEach(v => appendChip(wrap, v));
+  appendChipAddBtn(wrap);
+}
+
+function appendChip(wrap, val){
+  const s = document.createElement('span');
+  s.className = 'chip-item';
+  s.dataset.val = val;
+  s.innerHTML = `${esc(val)}<button class="chip-del" onclick="this.parentElement.remove()">×</button>`;
+  wrap.appendChild(s);
+}
+
+function appendChipAddBtn(wrap){
+  const btn = document.createElement('button');
+  btn.className = 'chip-add';
+  btn.type = 'button';
+  btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Adicionar`;
+  btn.onclick = (e) => {
+    e.preventDefault();
+    const inp = document.createElement('input');
+    inp.className = 'chip-input';
+    inp.placeholder = 'Novo item...';
+    inp.onkeydown = ev => {
+      if(ev.key==='Enter' && inp.value.trim()){
+        appendChip(wrap, inp.value.trim());
+        inp.remove(); appendChipAddBtn(wrap);
+      }
+      if(ev.key==='Escape'){ inp.remove(); appendChipAddBtn(wrap); }
+    };
+    btn.replaceWith(inp); inp.focus();
+  };
+  wrap.appendChild(btn);
+}
+
+function collectChipsList(cid){
+  return [...document.querySelectorAll(`#${cid} .chip-item`)].map(c=>c.dataset.val).filter(Boolean);
+}
+
+/* ═══════════════════════════════════════════
+   CLOUDINARY UPLOAD
+═══════════════════════════════════════════ */
+window.handleUpload = async (key, input) => {
+  const file = input.files[0]; if(!file) return;
+  /* preview local */
+  const objUrl = URL.createObjectURL(file);
+  const pDiv = document.getElementById('uprev-'+key);
+  const pImg = document.getElementById('uprevimg-'+key);
+  if(pDiv&&pImg){ pDiv.style.display='block'; pImg.src=objUrl; }
+  const st = document.getElementById('ust-'+key);
+  if(st){ st.style.display='block'; st.className='upload-status loading'; st.textContent='Enviando...'; }
+  try{
+    const url = await cloudinaryUpload(file);
+    window._pendingUrls[key+'_url'] = url;
+    const ui = document.getElementById(key+'-img-url')||document.getElementById(key+'-url');
+    if(ui) ui.value = url;
+    if(st){ st.className='upload-status ok'; st.textContent='✓ Upload concluído — clique em Salvar'; }
+    addToHist(url); renderHist(key.split('-')[0]);
+    previewUrl(key, url);
+  } catch(e){
+    if(st){ st.className='upload-status err'; st.textContent='Erro: '+e.message; }
+  }
+};
+
+window.uploadCapa = async (input, idx) => {
+  const file = input.files[0]; if(!file) return;
+  const st = document.getElementById(`capa-st-${idx}`);
+  if(st){ st.textContent='Enviando...'; st.style.color='var(--amber)'; }
+  try{
+    const url = await cloudinaryUpload(file);
+    const items = document.querySelectorAll('#projetos-list .rep-item');
+    if(items[idx]){ const inp = items[idx].querySelector('[name="img_url"]'); if(inp) inp.value = url; }
+    addToHist(url); renderHist('projetos');
+    if(st){ st.textContent='✓ Feito'; st.style.color='var(--green)'; setTimeout(()=>st.textContent='',3000); }
+  } catch(e){
+    if(st){ st.textContent='Erro: '+e.message; st.style.color='var(--red)'; }
+  }
+};
+
+async function cloudinaryUpload(file){
+  const C = window._CLOUD;
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', C.uploadPreset);
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${C.cloudName}/upload`,{method:'POST',body:fd});
+  if(!res.ok) throw new Error('Cloudinary '+res.status);
+  return (await res.json()).secure_url;
+}
+
+function previewUrl(key, url){
+  const el = document.getElementById('uprevurl-'+key);
+  if(el){ el.style.display='block'; el.textContent=url; }
+}
+
+/* ─── HIST ─── */
+const HK = 'jp_img_hist'; const HMAX = 40;
+function addToHist(url){ let h=JSON.parse(localStorage.getItem(HK)||'[]'); h=h.filter(u=>u!==url); h.unshift(url); if(h.length>HMAX) h=h.slice(0,HMAX); localStorage.setItem(HK,JSON.stringify(h)); }
+function renderHist(section){
+  const g = document.getElementById('hist-'+section); if(!g) return;
+  const hist = JSON.parse(localStorage.getItem(HK)||'[]');
+  if(!hist.length){ g.innerHTML='<div class="img-hist-empty">Nenhuma imagem ainda</div>'; return; }
+  g.innerHTML = hist.map(u=>`<div class="img-hist-item" onclick="applyHist('${u}','${section}')" title="${u}"><img src="${u}" loading="lazy" onerror="this.parentElement.style.opacity='.3'"></div>`).join('');
+}
+window.applyHist = (url, sec) => {
+  if(sec==='hero'){
+    const inp = document.getElementById('hero-img-url'); if(inp) inp.value = url;
+    previewUrl('hero', url); toast('Imagem do hero atualizada! Salve para confirmar.','ok');
+  } else {
+    const field = prompt('ID do campo onde aplicar a URL:'); if(!field) return;
+    const el = document.getElementById(field); if(el){ el.value=url; toast('Aplicado!','ok'); }
+  }
+};
+
+/* ─── UI ─── */
+window.showLoad = (msg) => { document.getElementById('loading-txt').textContent=msg||'Carregando...'; document.getElementById('loading').classList.add('show'); };
+window.hideLoad = ()    => { document.getElementById('loading').classList.remove('show'); };
+const showLoad = window.showLoad;
+const hideLoad = window.hideLoad;
+
+window.toast = (msg, type='ok') => {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('tic-ok').style.display  = type==='ok'  ? 'block':'none';
+  document.getElementById('tic-err').style.display = type==='err' ? 'block':'none';
+  t.className = 'show '+type;
+  clearTimeout(t._t); t._t = setTimeout(()=>t.className='', 3500);
+};
+
+let _cb = null;
+window.confirmAction = (title, sub, cb) => {
+  _cb = cb;
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-sub').textContent   = sub;
+  document.getElementById('confirm-overlay').classList.add('show');
+  document.getElementById('confirm-yes-btn').onclick = () => { closeConfirm(); if(_cb) _cb(); };
+};
+window.closeConfirm = () => document.getElementById('confirm-overlay').classList.remove('show');
+</script>
+</body>
+</html>

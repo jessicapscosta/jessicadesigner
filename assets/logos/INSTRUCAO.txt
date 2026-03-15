@@ -1,0 +1,19 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LOGOS DOS PARCEIROS — Como trocar
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Coloque as logos com os nomes:
+  logo1.png  → MOBE EDUC
+  logo2.png  → INOVE TOPOGRAFIA
+  logo3.png  → CIRRUS EDUCAÇÃO
+  logo4.png  → PROGRESSO
+  logo5.png  → 4 ARTES
+  logo6.png  → VOLVOX
+  logo7.png  → BRINQEDUC
+  logo8.png  → INTERATIVE EVENTOS
+  logo9.png  → Cliente 9
+  logo10.png → Cliente 10
+  logo11.png → Cliente 11
+  logo12.png → Cliente 12
+
+Formatos: PNG com fundo transparente (recomendado) ou SVG
+Tamanho: altura máxima 60px

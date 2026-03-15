@@ -1,0 +1,11 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROJETO P3 — Como trocar as imagens
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Coloque suas imagens nesta pasta com os nomes:
+  img1.jpg  ← imagem principal (aparece grande no topo)
+  img2.jpg  ← aparece na grade abaixo
+  img3.jpg  ← aparece na grade abaixo
+  img4.jpg  ← aparece na grade abaixo
+
+Formatos aceitos: JPG ou PNG
+Tamanho recomendado: mínimo 1200px de largura
