@@ -76,7 +76,7 @@ nav.scrolled{padding:14px 64px;background:rgba(8,0,15,.93);
 /* ─── HERO ─── */
 .hero{min-height:100vh;position:relative;overflow:visible;
   display:grid;grid-template-columns:1fr 420px;align-items:center;
-  padding:130px 150px 160px 64px;gap:24px}
+  padding:130px 260px 160px 64px;gap:24px}
 .hero-bg{position:absolute;inset:0;z-index:0;overflow:hidden;border-radius:0}
 /* mascara o fundo escuro do hero na borda inferior, fazendo fade para o bg da página */
 .hero::before{content:'';position:absolute;bottom:-2px;left:0;right:0;height:120px;
@@ -2370,7 +2370,7 @@ renderStepper();updateNav();
 ══════════════════════════════════════ -->
 <script>
 /* ── APLICA CACHE IMEDIATAMENTE (síncrono, antes do DOMContentLoaded) ── */
-const _CK = 'jp_site_cache_v1';
+const _CK = 'site_cache_v1';
 (function applyCache(){
   try{
     const data = JSON.parse(localStorage.getItem(_CK)||'{}');
