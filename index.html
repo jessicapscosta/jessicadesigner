@@ -27,19 +27,24 @@ button{font-family:inherit;cursor:none}
   --bd:rgba(255,255,255,.07);--sf:rgba(255,255,255,.04);
 }
 
-/* ─── CURSOR + RASTRO TINTA NEON ─── */
-#cur-d{position:fixed;width:10px;height:10px;background:var(--pk);border-radius:50%;
-  pointer-events:none;z-index:9999;transform:translate(-50%,-50%);
-  transition:width .18s,height .18s,background .18s}
-#cur-r{position:fixed;width:40px;height:40px;border:1.5px solid var(--pv2);border-radius:50%;
-  pointer-events:none;z-index:9998;transform:translate(-50%,-50%);
-  transition:all .14s ease}
-body.ch #cur-d{width:18px;height:18px;background:var(--pv)}
-body.ch #cur-r{width:66px;height:66px;border-color:var(--pk);opacity:.7}
-#ink-canvas{
-  position:fixed;inset:0;
-  pointer-events:none;   /* nunca bloqueia cliques */
-  z-index:9989;          /* abaixo do cursor, acima do conteúdo */
+/* ─── CURSOR PERSONALIZADO ─── */
+#cur-d{
+  position:fixed;width:8px;height:8px;
+  background:var(--pk);border-radius:50%;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+}
+#cur-r{
+  position:fixed;width:32px;height:32px;
+  border:1.5px solid rgba(255,26,108,.5);
+  border-radius:50%;pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:width .2s,height .2s,border-color .2s,transform .2s;
+}
+body.ch #cur-r{
+  width:48px;height:48px;
+  border-color:var(--pk);
+  transform:translate(-50%,-50%) scale(1);
 }
 
 /* ─── NOISE ─── */
@@ -897,13 +902,28 @@ a[href*="eapps.com"] {
   pointer-events: none !important;
   visibility: hidden !important;
 }
+
+/* ── TEXTURA FLUIDA — seção Sobre ── */
+#sobre{position:relative;overflow:hidden}
+#slime-canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;opacity:.6;
+}
+#sobre > *:not(#slime-canvas){position:relative;z-index:1}
+
+/* ── SPIROGRAPH — seção Projetos ── */
+#projetos{position:relative;overflow:hidden}
+#spiro-canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;opacity:.35;
+}
+#projetos > *:not(#spiro-canvas){position:relative;z-index:1}
 </style>
 </head>
 <body>
 
 <div id="cur-d"></div>
 <div id="cur-r"></div>
-<canvas id="ink-canvas"></canvas>
 <div class="noise"></div>
 <div id="sp"></div>
 
@@ -1041,6 +1061,7 @@ a[href*="eapps.com"] {
 
 <!-- ════════ ABOUT ════════ -->
 <section id="sobre">
+<canvas id="slime-canvas"></canvas>
   <!-- Linha superior: título + imagem com tags lado a lado -->
   <div class="about-top">
     <div class="about-left rv">
@@ -1272,6 +1293,7 @@ a[href*="eapps.com"] {
 
 <!-- ════════ PROJECTS — CARROSSEL 3D ════════ -->
 <section id="projetos">
+<canvas id="spiro-canvas"></canvas>
   <div class="proj-head">
     <div>
       <span class="s-tag rv">Projetos em destaque</span>
@@ -2297,127 +2319,6 @@ renderStepper();updateNav();
 })();
 </script>
 
-<!-- ══════════════════════════════════════════
-     RASTRO DE TINTA NEON (CURSOR)
-══════════════════════════════════════════ -->
-<script>
-(function(){
-  const canvas = document.getElementById('ink-canvas');
-  const ctx = canvas.getContext('2d');
-
-  /* Paleta neon alternada */
-  const COLORS = ['#FF1A6C','#A96BFF','#00D4FF','#FF5FA0','#7B1FFF'];
-  let colorIdx = 0;
-
-  /* Resize */
-  function resize(){
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  /* Partículas de tinta */
-  const particles = [];
-  let mx = -999, my = -999, lastX = -999, lastY = -999;
-  let frame = 0;
-
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    const dx = mx - lastX, dy = my - lastY;
-    const speed = Math.sqrt(dx*dx + dy*dy);
-
-    /* Muito menos partículas — só gera quando há movimento real */
-    if(speed > 4){
-      const count = Math.min(Math.floor(speed * .08) + 1, 3);
-      for(let i = 0; i < count; i++){
-        const color = COLORS[colorIdx % COLORS.length];
-        const r = 1.5 + Math.random() * (2 + speed * .03);
-        const spread = speed * .1;
-        particles.push({
-          x: mx + (Math.random()-.5)*spread,
-          y: my + (Math.random()-.5)*spread,
-          vx: (Math.random()-.5)*1.2,
-          vy: (Math.random()-.5)*1.2 - 0.2,
-          r, color,
-          alpha: .7 + Math.random()*.2,
-          decay: .028 + Math.random()*.02,
-          type: Math.random() > .7 ? 1 : 0
-        });
-      }
-      if(speed > 14) colorIdx++;
-    }
-    lastX = mx; lastY = my;
-  });
-
-  /* Loop de animação */
-  function loop(){
-    /* SEMPRE clearRect — nunca pinta fundo, nunca some com o conteúdo */
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    for(let i = particles.length - 1; i >= 0; i--){
-      const p = particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += .04; /* gravidade suave */
-      p.alpha -= p.decay;
-      p.r *= .985;
-
-      if(p.alpha <= 0 || p.r < .3){ particles.splice(i,1); continue; }
-
-      ctx.save();
-      ctx.globalAlpha = p.alpha;
-
-      if(p.type === 0){
-        /* Círculo neon com brilho */
-        const grad = ctx.createRadialGradient(p.x,p.y,0, p.x,p.y,p.r*2);
-        grad.addColorStop(0, p.color);
-        grad.addColorStop(.4, p.color);
-        grad.addColorStop(1, 'transparent');
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r*2, 0, Math.PI*2);
-        ctx.fill();
-        /* núcleo sólido */
-        ctx.fillStyle = '#fff';
-        ctx.globalAlpha = p.alpha * .5;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r*.4, 0, Math.PI*2);
-        ctx.fill();
-      } else {
-        /* Gota */
-        ctx.fillStyle = p.color;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = p.color;
-        ctx.beginPath();
-        ctx.ellipse(p.x, p.y, p.r*.7, p.r*1.4, Math.atan2(p.vy,p.vx)+Math.PI/2, 0, Math.PI*2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-
-      ctx.restore();
-    }
-
-    /* Brilho sutil no centro do cursor */
-    if(mx > 0){
-      ctx.save();
-      ctx.globalAlpha = .12;
-      const glow = ctx.createRadialGradient(mx,my,0, mx,my,28);
-      glow.addColorStop(0, COLORS[colorIdx%COLORS.length]);
-      glow.addColorStop(1,'transparent');
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(mx,my,28,0,Math.PI*2);
-      ctx.fill();
-      ctx.restore();
-    }
-
-    requestAnimationFrame(loop);
-  }
-  loop();
-})();
-</script>
-
 <script>
 /* ── Remove badge Elfsight dinamicamente ── */
 (function(){
@@ -2442,6 +2343,244 @@ renderStepper();updateNav();
   [500,1000,2000,3000,5000].forEach(t=>setTimeout(hide,t));
   /* MutationObserver — detecta qualquer novo elemento injetado pelo Elfsight */
   new MutationObserver(hide).observe(document.body,{childList:true,subtree:true});
+})();
+</script>
+
+<!-- ══════════════════════════════════════
+     TEXTURA FLUIDA — seção Sobre
+══════════════════════════════════════ -->
+<script>
+(function(){
+  const canvas = document.getElementById('slime-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  function resize(){
+    const sec = document.getElementById('sobre');
+    canvas.width  = sec.offsetWidth;
+    canvas.height = sec.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* Mouse relativo à seção */
+  let mx = 0.5, my = 0.5; /* normalizados 0-1 */
+  const sec = document.getElementById('sobre');
+  sec.addEventListener('mousemove', e => {
+    const r = sec.getBoundingClientRect();
+    mx = (e.clientX - r.left) / r.width;
+    my = (e.clientY - r.top)  / r.height;
+  });
+
+  /* ── Ruído simplex simplificado (fade sem forma) ── */
+  function fade(t){ return t*t*t*(t*(t*6-15)+10); }
+  function lerp(a,b,t){ return a+t*(b-a); }
+  function grad(h,x,y){
+    const v = h&3;
+    const u = v<2?x:y, w = v<2?y:x;
+    return ((v&1)?-u:u)+((v&2)?-w:w);
+  }
+  /* Permutation table */
+  const P = new Uint8Array(512);
+  const p = new Uint8Array(256);
+  for(let i=0;i<256;i++) p[i]=i;
+  for(let i=255;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [p[i],p[j]]=[p[j],p[i]]; }
+  for(let i=0;i<512;i++) P[i]=p[i&255];
+
+  function noise2(x,y){
+    const X=Math.floor(x)&255, Y=Math.floor(y)&255;
+    x-=Math.floor(x); y-=Math.floor(y);
+    const u=fade(x), v=fade(y);
+    const a=P[X]+Y, b=P[X+1]+Y;
+    return lerp(
+      lerp(grad(P[a],x,y),   grad(P[b],x-1,y),   u),
+      lerp(grad(P[a+1],x,y-1),grad(P[b+1],x-1,y-1),u),
+      v
+    );
+  }
+
+  /* FBM — fractional brownian motion = várias oitavas de ruído */
+  function fbm(x,y,oct){
+    let v=0, amp=.5, freq=1;
+    for(let i=0;i<oct;i++){
+      v += noise2(x*freq, y*freq)*amp;
+      amp*=.5; freq*=2.1;
+    }
+    return v;
+  }
+
+  const COLS = [
+    [255, 26,108],   /* --pk */
+    [123, 31,255],   /* --pv */
+    [169,107,255],   /* --pv2 */
+    [255, 95,160],   /* --pk2 */
+  ];
+
+  let t = 0;
+  /* Resolução reduzida para performance — upscale por CSS */
+  const RES = 3; /* pixels por célula */
+
+  function loop(){
+    const W = canvas.width, H = canvas.height;
+    const cw = Math.ceil(W/RES), ch = Math.ceil(H/RES);
+
+    /* Influência do mouse nas ondas */
+    const mfx = mx * 2 - 1; /* -1..1 */
+    const mfy = my * 2 - 1;
+
+    for(let cy=0; cy<ch; cy++){
+      for(let cx=0; cx<cw; cx++){
+        const nx = cx/cw, ny = cy/ch;
+
+        /* Coordenadas do ruído animadas no tempo */
+        const tx = nx*3.5 + t*0.0012 + mfx*0.4;
+        const ty = ny*3.5 + t*0.0009 + mfy*0.4;
+
+        /* FBM com distorção de domínio — cria textura sem forma */
+        const warpX = fbm(tx+0.0, ty+0.0, 4);
+        const warpY = fbm(tx+5.2, ty+1.3, 4);
+        const val   = fbm(tx + 2.5*warpX, ty + 2.5*warpY, 4);
+
+        /* Normaliza para 0-1 */
+        const n = (val + 1) * 0.5;
+
+        /* Mapeia para cor via interpolação entre as paletas */
+        const ci = n * (COLS.length-1);
+        const i0 = Math.floor(ci) % COLS.length;
+        const i1 = (i0+1) % COLS.length;
+        const f  = ci - Math.floor(ci);
+        const r  = COLS[i0][0] + (COLS[i1][0]-COLS[i0][0])*f;
+        const g  = COLS[i0][1] + (COLS[i1][1]-COLS[i0][1])*f;
+        const b  = COLS[i0][2] + (COLS[i1][2]-COLS[i0][2])*f;
+        /* Alpha varia com o ruído — textura tem brilhos e sombras */
+        const a  = 0.08 + n * 0.22;
+
+        ctx.fillStyle = `rgba(${r|0},${g|0},${b|0},${a.toFixed(2)})`;
+        ctx.fillRect(cx*RES, cy*RES, RES+1, RES+1);
+      }
+    }
+
+    t++;
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+
+<!-- ══════════════════════════════════════
+     SPIROGRAPH — seção Projetos
+══════════════════════════════════════ -->
+<script>
+(function(){
+  const canvas = document.getElementById('spiro-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  function resize(){
+    const sec = document.getElementById('projetos');
+    canvas.width  = sec.offsetWidth;
+    canvas.height = sec.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* Progresso do spirograph baseado no scroll */
+  let progress = 0;   /* 0 → 1 conforme a seção entra na tela */
+  let targetProgress = 0;
+
+  function updateScroll(){
+    const sec = document.getElementById('projetos');
+    const rect = sec.getBoundingClientRect();
+    const wh = window.innerHeight;
+    /* Começa a desenhar quando a seção entra na tela, termina quando sai */
+    const start = rect.top - wh;
+    const end   = rect.bottom;
+    const total = end - start;
+    targetProgress = Math.max(0, Math.min(1, -start / total));
+  }
+  window.addEventListener('scroll', updateScroll, {passive:true});
+  updateScroll();
+
+  /* Parâmetros do spirograph (Epitrocoide) */
+  const SPIROS = [
+    { R:1, r:.382, d:.8,  color:'rgba(255,26,108,',  steps:800, stroke:1.2 },
+    { R:1, r:.618, d:.5,  color:'rgba(123,31,255,',  steps:1200, stroke:.9 },
+    { R:1, r:.25,  d:.95, color:'rgba(169,107,255,',  steps:600, stroke:1.0 },
+  ];
+
+  /* Pré-calcula pontos de cada curva */
+  function calcPoints(sp, W, H){
+    const cx = W/2, cy = H/2;
+    const scale = Math.min(W, H) * .42;
+    const points = [];
+    for(let i = 0; i <= sp.steps; i++){
+      const t = (i/sp.steps) * Math.PI * 2 * Math.round(sp.R/sp.r + 1);
+      const x = cx + scale * ((sp.R+sp.r)*Math.cos(t) - sp.d*sp.r*Math.cos((sp.R+sp.r)/sp.r*t));
+      const y = cy + scale * ((sp.R+sp.r)*Math.sin(t) - sp.d*sp.r*Math.sin((sp.R+sp.r)/sp.r*t));
+      points.push({x,y});
+    }
+    return points;
+  }
+
+  let cachedPoints = [];
+  function rebuildCache(){
+    cachedPoints = SPIROS.map(sp => calcPoints(sp, canvas.width, canvas.height));
+  }
+  rebuildCache();
+  window.addEventListener('resize', rebuildCache);
+
+  function loop(){
+    /* Suaviza o progresso */
+    progress += (targetProgress - progress) * .04;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    SPIROS.forEach((sp, si) => {
+      const pts = cachedPoints[si];
+      if(!pts || pts.length < 2) return;
+
+      /* Quantos pontos desenhar baseado no progresso */
+      const drawCount = Math.floor(pts.length * Math.min(progress * 2.2, 1));
+      if(drawCount < 2) return;
+
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for(let i = 1; i < drawCount; i++){
+        ctx.lineTo(pts[i].x, pts[i].y);
+      }
+
+      /* Gradiente ao longo da curva — fade in na ponta */
+      const tailPt  = pts[Math.max(0, drawCount-80)];
+      const headPt  = pts[drawCount-1];
+      const grad = ctx.createLinearGradient(tailPt.x, tailPt.y, headPt.x, headPt.y);
+      grad.addColorStop(0,   sp.color + '0)');
+      grad.addColorStop(.4,  sp.color + '.15)');
+      grad.addColorStop(1,   sp.color + '.7)');
+
+      ctx.strokeStyle = grad;
+      ctx.lineWidth   = sp.stroke;
+      ctx.lineCap     = 'round';
+      ctx.lineJoin    = 'round';
+      ctx.shadowBlur  = 8;
+      ctx.shadowColor = sp.color + '.5)';
+      ctx.stroke();
+      ctx.shadowBlur  = 0;
+
+      /* Ponto brilhante na ponta */
+      if(drawCount > 5){
+        ctx.beginPath();
+        ctx.arc(headPt.x, headPt.y, 2.5, 0, Math.PI*2);
+        ctx.fillStyle = sp.color + '.9)';
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = sp.color + '1)';
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    });
+
+    requestAnimationFrame(loop);
+  }
+  loop();
 })();
 </script>
 </body>
