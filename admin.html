@@ -1634,9 +1634,15 @@ window.handleUpload = async (key, input) => {
   if(st){ st.style.display='block'; st.className='upload-status loading'; st.textContent='Enviando...'; }
   try{
     const url = await cloudinaryUpload(file);
-    window._pendingUrls[key+'_url'] = url;
-    const ui = document.getElementById(key+'-img-url')||document.getElementById(key+'-url');
+
+    /* Preenche o campo de input correspondente — collectSection vai ler daqui */
+    const ui = document.getElementById(key+'-url') || document.getElementById(key+'-img-url');
     if(ui) ui.value = url;
+
+    /* _pendingUrls só para campos que NÃO têm input de texto (fallback) */
+    const hasInput = !!(document.getElementById(key+'-url') || document.getElementById(key+'-img-url'));
+    if(!hasInput) window._pendingUrls[key+'_url'] = url;
+
     if(st){ st.className='upload-status ok'; st.textContent='✓ Upload concluído — clique em Salvar'; }
     addToHist(url); renderHist(key.split('-')[0]);
     previewUrl(key, url);
