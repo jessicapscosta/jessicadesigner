@@ -665,7 +665,7 @@ section{padding:100px 64px;position:relative;z-index:1}
 .vr-sm-l{font-size:12px;color:var(--mu);margin-top:5px}
 
 /* ─── TESTIMONIALS ─── */
-.test-section{background:var(--bg)}
+.test-section{background:var(--bg);padding-left:0!important;padding-right:0!important}
 .test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:52px}
 .t-card{background:var(--sf);border:1px solid var(--bd);border-radius:22px;
   padding:32px;position:relative;overflow:hidden;transition:border-color .3s}
@@ -2365,11 +2365,48 @@ renderStepper();updateNav();
 
 <!-- ══════════════════════════════════════
      FIREBASE — aplica dados do admin no site
+     Estratégia: cache localStorage → render imediato
+                 Firebase busca em background → atualiza só se mudou
 ══════════════════════════════════════ -->
+<script>
+/* ── APLICA CACHE IMEDIATAMENTE (síncrono, antes do DOMContentLoaded) ── */
+const _CK = 'jp_site_cache_v1';
+(function applyCache(){
+  try{
+    const data = JSON.parse(localStorage.getItem(_CK)||'{}');
+    if(!Object.keys(data).length) return;
+
+    /* Aplica imagens críticas via CSS inline no <head> para evitar flash */
+    const h = data.hero||{};
+    if(h.bg_url||h.main_url){
+      const style = document.createElement('style');
+      if(h.bg_url)   style.textContent += `#hero-bg-img{content:url('${h.bg_url}')}`;
+      if(h.main_url) style.textContent += `#hero-main-img{content:url('${h.main_url}')}`;
+      if(h.fa_url)   style.textContent += `#hero-float-a{content:url('${h.fa_url}')}`;
+      if(h.fb_url)   style.textContent += `#hero-float-b{content:url('${h.fb_url}')}`;
+      document.head.appendChild(style);
+    }
+
+    /* Preload das imagens críticas */
+    [h.bg_url, h.main_url, h.fa_url, h.fb_url,
+     (data.sobre||{}).img_url, (data.valores||{}).img_url
+    ].filter(Boolean).forEach(url=>{
+      const l = document.createElement('link');
+      l.rel='preload'; l.as='image'; l.href=url;
+      document.head.appendChild(l);
+    });
+
+    /* Guarda para aplicar no DOM depois do parse */
+    window._SITE_DATA = data;
+  } catch(e){}
+})();
+</script>
+
+<!-- Firebase SDK -->
 <script type="module">
-import { initializeApp }       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, getDocs, collection }
-                                from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc }
+                           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const FB = {
   apiKey:            "AIzaSyAfmhpr6ap9wQWYct-Uw6Nha2Tx8txfPKA",
@@ -2383,176 +2420,117 @@ const FB = {
 const app = initializeApp(FB);
 const db  = getFirestore(app);
 
-/* Cache key — invalida quando admin salva */
-const CK = 'jp_site_cache_v1';
+/* ── helpers DOM ── */
+const si = (id,url) => { if(url){const e=document.getElementById(id);if(e)e.src=url;} };
 
-function getCache(){ try{ return JSON.parse(localStorage.getItem(CK)||'{}'); }catch(e){ return {}; } }
-function setCache(data){ localStorage.setItem(CK, JSON.stringify(data)); }
-
-/* ── helpers ── */
-function setImg(id, url){ if(url){ const el=document.getElementById(id); if(el) el.src=url; } }
-function setText(id, txt){ if(txt){ const el=document.getElementById(id); if(el) el.innerHTML=txt; } }
-function setHref(id, url){ if(url){ const el=document.getElementById(id); if(el) el.href=url; } }
-
-/* ── Aplica todos os dados no DOM ── */
+/* ── Aplica dados completos no DOM ── */
 function applyAll(data){
-
-  /* ─ HERO ─ */
+  /* HERO */
   const h = data.hero||{};
-  setImg('hero-bg-img',   h.bg_url);
-  setImg('hero-main-img', h.main_url);
-  setImg('hero-float-a',  h.fa_url);
-  setImg('hero-float-b',  h.fb_url);
+  si('hero-bg-img',  h.bg_url);
+  si('hero-main-img',h.main_url);
+  si('hero-float-a', h.fa_url);
+  si('hero-float-b', h.fb_url);
   if(h.l1||h.l2||h.l3){
-    const h1 = document.querySelector('.hero-h1');
-    if(h1) h1.innerHTML = `
+    const el=document.querySelector('.hero-h1');
+    if(el) el.innerHTML=`
       <span class="line"><span class="li">${h.l1||''}</span></span>
       <span class="line"><span class="li"><span class="grad">${h.l2||''}</span></span></span>
       <span class="line"><span class="li">${h.l3||''}</span></span>`;
   }
-  if(h.desc){ const el=document.querySelector('.hero-sub'); if(el) el.innerHTML=h.desc; }
-  if(h.btn1_txt){ const el=document.querySelector('.hero-ctas .btn-pk'); if(el){ el.childNodes[0].textContent=h.btn1_txt; if(h.btn1_link) el.href=h.btn1_link; } }
-  if(h.badge){ const el=document.querySelector('.hero-badge'); if(el) el.childNodes[el.childNodes.length-1].textContent=' '+h.badge; }
-  if(h.chip1){ const el=document.querySelector('.hf-chip'); if(el) el.childNodes[el.childNodes.length-1].textContent=' '+h.chip1; }
-  if(h.stats && h.stats.length){
-    const ns = document.querySelectorAll('.h-stat-n');
-    const ls = document.querySelectorAll('.h-stat-l');
-    h.stats.forEach((s,i)=>{ if(ns[i]&&s.n) ns[i].textContent=s.n; if(ls[i]&&s.l) ls[i].textContent=s.l; });
-  }
+  if(h.desc){const e=document.querySelector('.hero-sub');if(e)e.innerHTML=h.desc;}
+  if(h.btn1_txt){const e=document.querySelector('.hero-ctas .btn-pk');if(e){e.childNodes[0].textContent=h.btn1_txt;if(h.btn1_link)e.href=h.btn1_link;}}
+  if(h.badge){const e=document.querySelector('.hero-badge');if(e)e.childNodes[e.childNodes.length-1].textContent=' '+h.badge;}
+  if(h.chip1){const e=document.querySelector('.hf-chip');if(e)e.childNodes[e.childNodes.length-1].textContent=' '+h.chip1;}
+  if(h.stats){const ns=document.querySelectorAll('.h-stat-n'),ls=document.querySelectorAll('.h-stat-l');h.stats.forEach((s,i)=>{if(ns[i]&&s.n)ns[i].textContent=s.n;if(ls[i]&&s.l)ls[i].textContent=s.l;});}
 
-  /* ─ SOBRE ─ */
-  const s = data.sobre||{};
-  setImg('about-img', s.img_url);
-  if(s.titulo){ const el=document.querySelector('#sobre .s-title'); if(el) el.innerHTML=`Design que <span style="color:var(--pk)">${s.titulo||'conta'}</span><br>a sua história`; }
-  if(s.desc){ const els=document.querySelectorAll('.about-desc'); if(els[0]) els[0].innerHTML=s.desc; }
-  if(s.atag1){ const el=document.querySelector('.atag-1'); if(el) el.lastChild.textContent=' '+s.atag1; }
-  if(s.atag2){ const el=document.querySelector('.atag-2'); if(el) el.lastChild.textContent=' '+s.atag2; }
-  if(s.atag3){ const el=document.querySelector('.atag-3'); if(el) el.lastChild.textContent=' '+s.atag3; }
-  if(s.skills && s.skills.length){
-    const wrap = document.querySelector('.skills-chips');
-    if(wrap) wrap.innerHTML = s.skills.map(sk=>`<span class="skill-chip">${sk}</span>`).join('');
-  }
+  /* SOBRE */
+  const s=data.sobre||{};
+  si('about-img',s.img_url);
+  if(s.titulo){const e=document.querySelector('#sobre .s-title');if(e)e.innerHTML=`Design que <span style="color:var(--pk)">${s.titulo}</span><br>a sua história`;}
+  if(s.desc){const es=document.querySelectorAll('.about-desc');if(es[0])es[0].innerHTML=s.desc;}
+  if(s.atag1){const e=document.querySelector('.atag-1');if(e)e.lastChild.textContent=' '+s.atag1;}
+  if(s.atag2){const e=document.querySelector('.atag-2');if(e)e.lastChild.textContent=' '+s.atag2;}
+  if(s.atag3){const e=document.querySelector('.atag-3');if(e)e.lastChild.textContent=' '+s.atag3;}
+  if(s.skills&&s.skills.length){const w=document.querySelector('.skills-chips');if(w)w.innerHTML=s.skills.map(sk=>`<span class="skill-chip">${sk}</span>`).join('');}
 
-  /* ─ SERVIÇOS ─ */
-  const sv = data.servicos||{};
-  if(sv.items && sv.items.length){
-    const cards = document.querySelectorAll('.svc-card');
-    sv.items.forEach((it,i)=>{
-      if(!cards[i]) return;
-      const t=cards[i].querySelector('.svc-title'); if(t&&it.titulo) t.textContent=it.titulo;
-      const p=cards[i].querySelector('.svc-txt');   if(p&&it.txt)    p.textContent=it.txt;
-    });
-  }
+  /* SERVIÇOS */
+  const sv=data.servicos||{};
+  if(sv.items){const cs=document.querySelectorAll('.svc-card');sv.items.forEach((it,i)=>{if(!cs[i])return;const t=cs[i].querySelector('.svc-title');if(t&&it.titulo)t.textContent=it.titulo;const p=cs[i].querySelector('.svc-txt');if(p&&it.txt)p.textContent=it.txt;});}
 
-  /* ─ PROJETOS ─ */
-  const pr = data.projetos||{};
-  if(pr.items && pr.items.length){
-    /* Atualiza o array PC_PROJECTS do carrossel */
-    if(window.PC_UPDATE) window.PC_UPDATE(pr.items);
-  }
+  /* PROJETOS */
+  const pr=data.projetos||{};
+  if(pr.items&&pr.items.length&&window.PC_UPDATE)window.PC_UPDATE(pr.items);
 
-  /* ─ VALORES ─ */
-  const v = data.valores||{};
-  setImg('vals-img', v.img_url);
-  if(v.l1||v.l2){
-    const el=document.querySelector('.vals-section .s-title');
-    if(el) el.innerHTML=`${v.l1||'O que guia'}<br><span style="color:var(--pk)">${v.l2||'meu trabalho'}</span>`;
-  }
-  if(v.desc){ const el=document.querySelector('.vals-desc'); if(el) el.textContent=v.desc; }
-  if(v.items && v.items.length){
-    const items = document.querySelectorAll('.v-item');
-    v.items.forEach((it,i)=>{
-      if(!items[i]) return;
-      const num=items[i].querySelector('.v-num'); if(num&&it.num) num.textContent=it.num;
-      const lbl=items[i].querySelector('.v-lbl'); if(lbl&&it.label) lbl.textContent=it.label;
-      const sub=items[i].querySelector('.v-sub'); if(sub&&it.sub)   sub.textContent=it.sub;
-    });
-  }
-  if(v.stat_big_n){ const el=document.querySelector('.vr-big-n'); if(el) el.textContent=v.stat_big_n; }
-  if(v.stat_big_l){ const el=document.querySelector('.vr-big-l'); if(el) el.textContent=v.stat_big_l; }
-  if(v.small_stats){
-    const ns=document.querySelectorAll('.vr-sm-n'), ls=document.querySelectorAll('.vr-sm-l');
-    v.small_stats.forEach((s,i)=>{ if(ns[i]&&s.n) ns[i].textContent=s.n; if(ls[i]&&s.l) ls[i].textContent=s.l; });
-  }
+  /* VALORES */
+  const v=data.valores||{};
+  si('vals-img',v.img_url);
+  if(v.l1||v.l2){const e=document.querySelector('.vals-section .s-title');if(e)e.innerHTML=`${v.l1||'O que guia'}<br><span style="color:var(--pk)">${v.l2||'meu trabalho'}</span>`;}
+  if(v.desc){const e=document.querySelector('.vals-desc');if(e)e.textContent=v.desc;}
+  if(v.items){const is=document.querySelectorAll('.v-item');v.items.forEach((it,i)=>{if(!is[i])return;const n=is[i].querySelector('.v-num');if(n&&it.num)n.textContent=it.num;const l=is[i].querySelector('.v-lbl');if(l&&it.label)l.textContent=it.label;const sub=is[i].querySelector('.v-sub');if(sub&&it.sub)sub.textContent=it.sub;});}
+  if(v.stat_big_n){const e=document.querySelector('.vr-big-n');if(e)e.textContent=v.stat_big_n;}
+  if(v.stat_big_l){const e=document.querySelector('.vr-big-l');if(e)e.textContent=v.stat_big_l;}
+  if(v.small_stats){const ns=document.querySelectorAll('.vr-sm-n'),ls=document.querySelectorAll('.vr-sm-l');v.small_stats.forEach((s,i)=>{if(ns[i]&&s.n)ns[i].textContent=s.n;if(ls[i]&&s.l)ls[i].textContent=s.l;});}
 
-  /* ─ DEPOIMENTOS ─ */
-  const dep = data.depoimentos||{};
-  if(dep.items && dep.items.length){
-    const cards = document.querySelectorAll('.t-card');
-    dep.items.forEach((it,i)=>{
-      if(!cards[i]) return;
-      const txt=cards[i].querySelector('.t-txt');   if(txt&&it.txt)   txt.textContent=it.txt;
-      const nm =cards[i].querySelector('.t-name');  if(nm&&it.nome)   nm.textContent=it.nome;
-      const rl =cards[i].querySelector('.t-role');  if(rl&&it.cargo)  rl.textContent=it.cargo;
-      const st =cards[i].querySelector('.t-stars'); if(st&&it.estrelas) st.textContent='★'.repeat(parseInt(it.estrelas)||5);
-    });
-  }
+  /* DEPOIMENTOS */
+  const dep=data.depoimentos||{};
+  if(dep.items){const cs=document.querySelectorAll('.t-card');dep.items.forEach((it,i)=>{if(!cs[i])return;const t=cs[i].querySelector('.t-txt');if(t&&it.txt)t.textContent=it.txt;const n=cs[i].querySelector('.t-name');if(n&&it.nome)n.textContent=it.nome;const r=cs[i].querySelector('.t-role');if(r&&it.cargo)r.textContent=it.cargo;const st=cs[i].querySelector('.t-stars');if(st&&it.estrelas)st.textContent='★'.repeat(parseInt(it.estrelas)||5);});}
 
-  /* ─ FAQ ─ */
-  const fq = data.faq||{};
-  if(fq.items && fq.items.length){
-    const items = document.querySelectorAll('.faq-item');
-    fq.items.forEach((it,i)=>{
-      if(!items[i]) return;
-      const q=items[i].querySelector('.faq-q-txt'); if(q&&it.pergunta) q.textContent=it.pergunta;
-      const a=items[i].querySelector('.faq-a-txt'); if(a&&it.resposta) a.textContent=it.resposta;
-    });
-  }
+  /* FAQ */
+  const fq=data.faq||{};
+  if(fq.items){const is=document.querySelectorAll('.faq-item');fq.items.forEach((it,i)=>{if(!is[i])return;const q=is[i].querySelector('.faq-q-txt');if(q&&it.pergunta)q.textContent=it.pergunta;const a=is[i].querySelector('.faq-a-txt');if(a&&it.resposta)a.textContent=it.resposta;});}
 
-  /* ─ FOOTER ─ */
-  const ft = data.footer||{};
-  if(ft.bio){ const el=document.querySelector('.foot-tag'); if(el) el.textContent=ft.bio; }
-  if(ft.copyright){ const el=document.querySelector('.foot-copy'); if(el) el.textContent=ft.copyright; }
-  if(ft.instagram){ document.querySelectorAll('a[href*="instagram"]').forEach(a=>a.href=ft.instagram); }
-  if(ft.behance){   document.querySelectorAll('a[href*="behance"]').forEach(a=>a.href=ft.behance); }
-  if(ft.wpp){       document.querySelectorAll('a[href*="wa.me"]').forEach(a=>{ a.href='https://wa.me/'+ft.wpp; }); }
+  /* FOOTER */
+  const ft=data.footer||{};
+  if(ft.bio){const e=document.querySelector('.foot-tag');if(e)e.textContent=ft.bio;}
+  if(ft.copyright){const e=document.querySelector('.foot-copy');if(e)e.textContent=ft.copyright;}
+  if(ft.instagram)document.querySelectorAll('a[href*="instagram"]').forEach(a=>a.href=ft.instagram);
+  if(ft.behance)  document.querySelectorAll('a[href*="behance"]').forEach(a=>a.href=ft.behance);
+  if(ft.wpp)      document.querySelectorAll('a[href*="wa.me"]').forEach(a=>a.href='https://wa.me/'+ft.wpp);
 
-  /* ─ CONFIG (favicon, title) ─ */
-  const cfg = data.config||{};
-  if(cfg.favicon_url){
-    let lk=document.querySelector('link[rel="icon"]');
-    if(!lk){ lk=document.createElement('link'); lk.rel='icon'; document.head.appendChild(lk); }
-    lk.href=cfg.favicon_url;
-  }
-  if(cfg.site_title) document.title=cfg.site_title;
-  if(cfg.meta_desc){
-    let m=document.querySelector('meta[name="description"]');
-    if(!m){ m=document.createElement('meta'); m.name='description'; document.head.appendChild(m); }
-    m.content=cfg.meta_desc;
-  }
+  /* CONFIG */
+  const cfg=data.config||{};
+  if(cfg.favicon_url){let l=document.querySelector('link[rel="icon"]');if(!l){l=document.createElement('link');l.rel='icon';document.head.appendChild(l);}l.href=cfg.favicon_url;}
+  if(cfg.site_title)document.title=cfg.site_title;
 
-  /* ─ BRIEFING ─ */
-  const bf = data.briefing||{};
-  if(bf.titulo){ const el=document.querySelector('.bf-title'); if(el) el.textContent=bf.titulo; }
-  if(bf.wpp_num){ window._BF_WPP=bf.wpp_num; }
+  /* BRIEFING */
+  const bf=data.briefing||{};
+  if(bf.titulo){const e=document.querySelector('.bf-title');if(e)e.textContent=bf.titulo;}
+  if(bf.wpp_num)window._BF_WPP=bf.wpp_num;
 }
 
-/* ── Carrega dados: cache primeiro, depois Firebase em background ── */
-async function loadSiteData(){
-  const cache = getCache();
+/* ── Aplica cache do window._SITE_DATA (injetado antes do parse) ── */
+function applyCachedData(){
+  if(window._SITE_DATA && Object.keys(window._SITE_DATA).length){
+    applyAll(window._SITE_DATA);
+  }
+}
 
-  /* Aplica cache imediatamente se existir */
-  if(Object.keys(cache).length) applyAll(cache);
-
-  /* Busca todas as seções em paralelo */
+/* ── Busca Firebase em background e atualiza se houver novidade ── */
+async function fetchAndUpdate(){
   try{
-    const sections = ['hero','sobre','servicos','projetos','valores','depoimentos','faq','footer','config','briefing'];
-    const snaps = await Promise.all(sections.map(s => getDoc(doc(db,'site',s))));
+    const sections=['hero','sobre','servicos','projetos','valores','depoimentos','faq','footer','config','briefing'];
+    const snaps = await Promise.all(sections.map(s=>getDoc(doc(db,'site',s))));
     const fresh = {};
-    sections.forEach((s,i) => { if(snaps[i].exists()) fresh[s]=snaps[i].data(); });
-    setCache(fresh);
-    applyAll(fresh);
-  } catch(e){
-    console.warn('Firebase: não foi possível carregar dados.', e.message);
-  }
+    sections.forEach((s,i)=>{ if(snaps[i].exists()) fresh[s]=snaps[i].data(); });
+
+    /* Só re-renderiza se os dados mudaram em relação ao cache */
+    const cached = JSON.stringify(window._SITE_DATA||{});
+    const newStr = JSON.stringify(fresh);
+    if(cached !== newStr){
+      localStorage.setItem(_CK, newStr);
+      window._SITE_DATA = fresh;
+      applyAll(fresh);
+    }
+  } catch(e){ console.warn('Firebase update:', e.message); }
 }
 
-/* Aguarda DOM estar pronto */
-if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded', loadSiteData);
-} else {
-  loadSiteData();
-}
+/* ── Sequência de carregamento ── */
+// 1. Aplica cache imediatamente quando DOM estiver pronto
+document.addEventListener('DOMContentLoaded', applyCachedData);
+// 2. Busca Firebase em background sem bloquear nada
+window.addEventListener('load', ()=> setTimeout(fetchAndUpdate, 100));
 </script>
+
 </body>
 </html>
