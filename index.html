@@ -2427,9 +2427,8 @@ const si = (id,url) => { if(url){const e=document.getElementById(id);if(e)e.src=
 function applyAll(data){
   /* HERO */
   const h = data.hero||{};
-  /* img_url é o campo antigo/fallback, main_url é o novo */
-  si('hero-bg-img',  h.bg_url   || h.img_url);
-  si('hero-main-img',h.main_url || h.img_url);
+  si('hero-bg-img',  h.bg_url);
+  si('hero-main-img',h.main_url);
   si('hero-float-a', h.fa_url);
   si('hero-float-b', h.fb_url);
   if(h.l1||h.l2||h.l3){
