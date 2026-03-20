@@ -1266,7 +1266,7 @@ function collectSection(sec){
     fs:{ 'sobre-titulo':gv('fs-sobre-titulo')||'58', 'sobre-desc':gv('fs-sobre-desc')||'16' }
   };
   if(sec==='servicos') return { items: collectRep('servicos-list', ['titulo','txt']) };
-  if(sec==='projetos') return { items: collectRep('projetos-list', ['cat','nome','img_url','behance','desc','gallery']) };
+  if(sec==='projetos') return { items: collectRep('projetos-list', ['cat','nome','img_url','img2_url','img3_url','behance','desc','gallery']) };
   if(sec==='valores')  return {
     tag:gv('vals-tag'), l1:gv('vals-l1'), l2:gv('vals-l2'), desc:gv('vals-desc'),
     img_url:gv('valores-img-url'),
@@ -1366,28 +1366,62 @@ function projetoTpl(it, i){
   return `<div class="form-grid" style="gap:10px">
     <div class="form-field"><label class="field-label">Categoria</label>
     <input class="field-input" name="cat" type="text" value="${esc(it.cat||'')}" placeholder="Identidade Visual · Branding"></div>
-    <div class="form-field"><label class="field-label">Nome</label>
-    <input class="field-input" name="nome" type="text" value="${esc(it.nome||'')}" placeholder="ID Visual | MOBE EDUC"></div>
-    <div class="form-field full"><label class="field-label">URL da capa (thumbnail)</label>
-    <input class="field-input" name="img_url" type="text" value="${esc(it.img_url||'')}" placeholder="https://...">
-    </div>
+    <div class="form-field"><label class="field-label">Nome do cliente</label>
+    <input class="field-input" name="nome" type="text" value="${esc(it.nome||'')}" placeholder="MOBE EDUC"></div>
     <div class="form-field"><label class="field-label">Link Behance</label>
     <input class="field-input" name="behance" type="text" value="${esc(it.behance||'')}" placeholder="https://behance.net/..."></div>
     <div class="form-field"><label class="field-label">Descrição curta</label>
     <input class="field-input" name="desc" type="text" value="${esc(it.desc||'')}" placeholder="Resumo do projeto..."></div>
   </div>
-  <div style="margin-top:10px;display:flex;align-items:center;gap:8px">
-    <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;
-      background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:7px 12px;
-      font-size:11px;font-weight:600;color:var(--mu);transition:all .18s"
-      onmouseover="this.style.borderColor='var(--pk)';this.style.color='var(--pk)'"
-      onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--mu)'">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-      Upload capa
-      <input type="file" accept="image/*" style="display:none" onchange="uploadCapa(this,${i})">
-    </label>
-    <span id="capa-st-${i}" style="font-size:11px;color:var(--mu)"></span>
+
+  <div style="margin-top:14px;background:var(--sf);border:1.5px solid var(--bd);border-radius:12px;padding:14px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--pk);margin-bottom:12px">
+      Imagens do card (aparecem no portfólio)
+    </div>
+    <div class="form-grid" style="gap:10px">
+      <div class="form-field full">
+        <label class="field-label">Imagem principal (grande, lado esquerdo)</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="field-input" name="img_url" type="text" value="${esc(it.img_url||'')}" placeholder="URL da imagem principal" style="flex:1">
+          <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:var(--mu);white-space:nowrap;transition:all .18s"
+            onmouseover="this.style.borderColor='var(--pk)';this.style.color='var(--pk)'"
+            onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--mu)'">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+            Upload
+            <input type="file" accept="image/*" style="display:none" onchange="uploadCardImg(this,'${i}','img_url')">
+          </label>
+        </div>
+        <span id="capa-st-${i}" style="font-size:11px;color:var(--mu)"></span>
+      </div>
+      <div class="form-field">
+        <label class="field-label">Imagem 2 (lado direito, superior)</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="field-input" name="img2_url" type="text" value="${esc(it.img2_url||'')}" placeholder="URL da imagem 2" style="flex:1">
+          <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:var(--mu);white-space:nowrap;transition:all .18s"
+            onmouseover="this.style.borderColor='var(--pk)';this.style.color='var(--pk)'"
+            onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--mu)'">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+            Upload
+            <input type="file" accept="image/*" style="display:none" onchange="uploadCardImg(this,'${i}','img2_url')">
+          </label>
+        </div>
+      </div>
+      <div class="form-field">
+        <label class="field-label">Imagem 3 (lado direito, inferior)</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input class="field-input" name="img3_url" type="text" value="${esc(it.img3_url||'')}" placeholder="URL da imagem 3" style="flex:1">
+          <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:11px;font-weight:600;color:var(--mu);white-space:nowrap;transition:all .18s"
+            onmouseover="this.style.borderColor='var(--pk)';this.style.color='var(--pk)'"
+            onmouseout="this.style.borderColor='var(--bd)';this.style.color='var(--mu)'">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16,16 12,12 8,16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+            Upload
+            <input type="file" accept="image/*" style="display:none" onchange="uploadCardImg(this,'${i}','img3_url')">
+          </label>
+        </div>
+      </div>
+    </div>
   </div>
+
   <div style="margin-top:14px">
     <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--mu);margin-bottom:8px">Galeria interna do projeto (imagens na página expandida)</div>
     <div class="proj-gallery-grid" id="pgallery-${i}">
@@ -1401,6 +1435,26 @@ function projetoTpl(it, i){
   </div>`;
 }
 window.projetoTpl = projetoTpl;
+
+/* Upload de imagem do card de projeto (img_url, img2_url, img3_url) */
+window.uploadCardImg = async (input, projIdx, fieldName) => {
+  const file = input.files[0]; if(!file) return;
+  const st = document.getElementById(`capa-st-${projIdx}`);
+  if(st){ st.textContent='Enviando...'; st.style.color='var(--amber)'; }
+  try{
+    const url = await cloudinaryUpload(file);
+    /* Preenche o input correto dentro do item */
+    const items = document.querySelectorAll('#projetos-list .rep-item');
+    if(items[projIdx]){
+      const inp = items[projIdx].querySelector(`[name="${fieldName}"]`);
+      if(inp) inp.value = url;
+    }
+    addToHist(url); renderHist('projetos');
+    if(st){ st.textContent='✓ Feito'; st.style.color='var(--green)'; setTimeout(()=>st.textContent='',3000); }
+  } catch(e){
+    if(st){ st.textContent='Erro: '+e.message; st.style.color='var(--red)'; }
+  }
+};
 
 window.addGalleryImg = async (projIdx) => {
   const input = document.createElement('input');
